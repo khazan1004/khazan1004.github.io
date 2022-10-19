@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>Docker安装RabbitMQ</title>
+    <url>/2021/10/19/Docker%E5%AE%89%E8%A3%85RabbitMQ/</url>
+    <content><![CDATA[<h2 id="安装-rabbitmq-指定配置映射"><a href="#安装-rabbitmq-指定配置映射" class="headerlink" title="安装 rabbitmq 指定配置映射"></a>安装 rabbitmq 指定配置映射</h2><h3 id="相关资料查阅"><a href="#相关资料查阅" class="headerlink" title="相关资料查阅"></a>相关资料查阅</h3><ul>
+<li>配置文件目录: <a href="https://hub.docker.com/_/rabbitmq?tab=description">(英文) Docker Hub</a></li>
+<li>rabbitmq 环境变量: <a href="https://www.rabbitmq.com/configure.html#supported-environment-variables">(英文) 官方文档</a></li>
+<li>rabbitmqctl 指令文档: <a href="https://www.rabbitmq.com/rabbitmqctl.8.html">(英文) 官方文档</a></li>
+</ul>
+<h2 id="安装并启动rabbitmq"><a href="#安装并启动rabbitmq" class="headerlink" title="安装并启动rabbitmq"></a>安装并启动rabbitmq</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拉取容器</span></span><br><span class="line">docker pull rabbitmq:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">运行容器</span></span><br><span class="line">docker run -d</span><br><span class="line">--name rabbitmq-5672</span><br><span class="line">-p 5672:5672</span><br><span class="line">-p 15672:15672</span><br><span class="line">-v /data/rabbitmq-5672/conf:/etc/rabbitmq</span><br><span class="line">-v /data/rabbitmq-5672/data:/var/lib/rabbitmq</span><br><span class="line">-v /data/rabbitmq-5672/logs:/var/log/rabbitmq</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=guest</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=guest</span><br><span class="line">rabbitmq:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/etc/rabbitmq: 		配置文件目录, 包含有rabbitmq.config</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/var/lib/rabbitmq: 	数据文件目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/var/log/rabbitmq: 	日志目录</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><h3 id="开启web管理模块"><a href="#开启web管理模块" class="headerlink" title="开启web管理模块"></a>开启web管理模块</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先使用 docker <span class="built_in">exec</span> 进入容器</span></span><br><span class="line">docker exec -it rabbitmq-5672 bash</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用rabbitmq-plugins指令启动web管理模块</span></span><br><span class="line">rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="加入-SpringBoot-项目进行测试"><a href="#加入-SpringBoot-项目进行测试" class="headerlink" title="加入 SpringBoot 项目进行测试"></a>加入 SpringBoot 项目进行测试</h2><h2 id="相关问题处理"><a href="#相关问题处理" class="headerlink" title="相关问题处理"></a>相关问题处理</h2><ul>
+<li><h3 id="User-can-only-log-in-via-localhost"><a href="#User-can-only-log-in-via-localhost" class="headerlink" title="User can only log in via localhost"></a>User can only log in via localhost</h3>据了解是RabbitMQ 3.3.0更新后guest账号不再支持在非本地外的环境登录, 建议新增账号进行登录.<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">增加root用户</span></span><br><span class="line">rabbitmqctl add_user root 123456</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">赋予管理员权限</span></span><br><span class="line">rabbitmqctl set_user_tags root administrator</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">赋予Virtual host权限</span></span><br><span class="line">rabbitmqctl set_permissions -p / root &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>容器</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis源码分析</title>
+    <url>/2022/10/15/Redis%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="Redis源码分析"><a href="#Redis源码分析" class="headerlink" title="Redis源码分析"></a>Redis源码分析</h1><p>Redis版本: <code>6.2</code><br>Github：<a href="https://github.com/redis/redis/tree/6.2">https://github.com/redis/redis/tree/6.2</a></p>
+<h2 id="命令大全"><a href="#命令大全" class="headerlink" title="命令大全"></a>命令大全</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// server.c - 195行</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">redisCommand</span> redisCommandTable[] = &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="RedisDB数据库结构"><a href="#RedisDB数据库结构" class="headerlink" title="RedisDB数据库结构"></a>RedisDB数据库结构</h2><p>哈希表 + 链表, 类似于Java中的HashTable.</p>
+<h3 id="渐进式rehash-分段式rehash"><a href="#渐进式rehash-分段式rehash" class="headerlink" title="渐进式rehash(分段式rehash)"></a>渐进式rehash(分段式rehash)</h3><h3 id="万能数据类型-SDS-Simple-Dynamic-String-动态字符串"><a href="#万能数据类型-SDS-Simple-Dynamic-String-动态字符串" class="headerlink" title="万能数据类型 SDS(Simple Dynamic String, 动态字符串)"></a>万能数据类型 SDS(Simple Dynamic String, 动态字符串)</h3><h3 id="整形存储"><a href="#整形存储" class="headerlink" title="整形存储"></a>整形存储</h3><p>直接存储在redisObject的*ptr</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// object.c - 465行</span></span><br><span class="line"><span class="keyword">if</span> (len &lt;= <span class="number">20</span> &amp;&amp; <span class="built_in">string2l</span>(s,len,&amp;value)) &#123;</span><br><span class="line">        <span class="comment">/* This object is encodable as a long. Try to use a shared object.</span></span><br><span class="line"><span class="comment">         * Note that we avoid using shared integers when maxmemory is used</span></span><br><span class="line"><span class="comment">         * because every object needs to have a private LRU field for the LRU</span></span><br><span class="line"><span class="comment">         * algorithm to work well. */</span></span><br><span class="line">        <span class="keyword">if</span> ((server.maxmemory == <span class="number">0</span> ||</span><br><span class="line">            !(server.maxmemory_policy &amp; MAXMEMORY_FLAG_NO_SHARED_INTEGERS)) &amp;&amp;</span><br><span class="line">            value &gt;= <span class="number">0</span> &amp;&amp;</span><br><span class="line">            value &lt; OBJ_SHARED_INTEGERS)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">decrRefCount</span>(o);</span><br><span class="line">            <span class="built_in">incrRefCount</span>(shared.integers[value]);</span><br><span class="line">            <span class="keyword">return</span> shared.integers[value];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_RAW) &#123;</span><br><span class="line">                <span class="built_in">sdsfree</span>(o-&gt;ptr);</span><br><span class="line">                o-&gt;encoding = OBJ_ENCODING_INT;</span><br><span class="line">                o-&gt;ptr = (<span class="type">void</span>*) value;</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_EMBSTR) &#123;</span><br><span class="line">                <span class="built_in">decrRefCount</span>(o);</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">createStringObjectFromLongLongForValue</span>(value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="embstr数据结构"><a href="#embstr数据结构" class="headerlink" title="embstr数据结构"></a>embstr数据结构</h3><p>当string值小于44时, 使用sdshdr8可以直接跟随存储在redisObjecta的ptr后边, 根据CacheLine大小为64, 省略一次IO.</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">char</span> *sds;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Note: sdshdr5 is never used, we just access the flags byte directly.</span></span><br><span class="line"><span class="comment"> * However is here to document the layout of type 5 SDS strings. */</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr5 &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, and 5 msb of string length */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr8 &#123;</span><br><span class="line">    <span class="type">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr16 &#123;</span><br><span class="line">    <span class="type">uint16_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint16_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr32 &#123;</span><br><span class="line">    <span class="type">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr64 &#123;</span><br><span class="line">    <span class="type">uint64_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint64_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>CacheLine为64</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// server.h - 668行</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LRU_BITS 24</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">redisObject</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS; <span class="comment">/* LRU time (relative to global lru_clock) or</span></span><br><span class="line"><span class="comment">                            * LFU data (least significant 8 bits frequency</span></span><br><span class="line"><span class="comment">                            * and most significant 16 bits access time). */</span></span><br><span class="line">    <span class="type">int</span> refcount;</span><br><span class="line">    <span class="type">void</span> *ptr;</span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// server.h - 706行</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">redisDb</span> &#123;</span><br><span class="line">    dict *dict;                 <span class="comment">/* The keyspace for this DB */</span></span><br><span class="line">    dict *expires;              <span class="comment">/* Timeout of keys with a timeout set */</span></span><br><span class="line">    dict *blocking_keys;        <span class="comment">/* Keys with clients waiting for data (BLPOP)*/</span></span><br><span class="line">    dict *ready_keys;           <span class="comment">/* Blocked keys that received a PUSH */</span></span><br><span class="line">    dict *watched_keys;         <span class="comment">/* WATCHED keys for MULTI/EXEC CAS */</span></span><br><span class="line">    <span class="type">int</span> id;                     <span class="comment">/* Database ID */</span></span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> avg_ttl;          <span class="comment">/* Average TTL, just for stats */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> expires_cursor; <span class="comment">/* Cursor of the active expire cycle. */</span></span><br><span class="line">    list *defrag_later;         <span class="comment">/* List of key names to attempt to defrag one by one, gradually. */</span></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// dict.h - 50行</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dictEntry</span> &#123;</span><br><span class="line">    <span class="type">void</span> *key;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="type">void</span> *val;</span><br><span class="line">        <span class="type">uint64_t</span> u64;</span><br><span class="line">        <span class="type">int64_t</span> s64;</span><br><span class="line">        <span class="type">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">dictEntry</span> *next;</span><br><span class="line">&#125; dictEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dictType</span> &#123;</span><br><span class="line">    <span class="built_in">uint64_t</span> (*hashFunction)(<span class="type">const</span> <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> *(*keyDup)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> *(*valDup)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *obj);</span><br><span class="line">    <span class="built_in">int</span> (*keyCompare)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *key1, <span class="type">const</span> <span class="type">void</span> *key2);</span><br><span class="line">    <span class="built_in">void</span> (*keyDestructor)(<span class="type">void</span> *privdata, <span class="type">void</span> *key);</span><br><span class="line">    <span class="built_in">void</span> (*valDestructor)(<span class="type">void</span> *privdata, <span class="type">void</span> *obj);</span><br><span class="line">    <span class="built_in">int</span> (*expandAllowed)(<span class="type">size_t</span> moreMem, <span class="type">double</span> usedRatio);</span><br><span class="line">&#125; dictType;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dictht</span> &#123;</span><br><span class="line">    dictEntry **table;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> sizemask;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> used;</span><br><span class="line">&#125; dictht;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dict</span> &#123;</span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="type">void</span> *privdata;</span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="type">long</span> rehashidx; <span class="comment">/* rehashing not in progress if rehashidx == -1 */</span></span><br><span class="line">    <span class="type">int16_t</span> pauserehash; <span class="comment">/* If &gt;0 rehashing is paused (&lt;0 indicates coding error) */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+        <tag>C/C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Windows使用WSL2安装Docker Desktop</title>
+    <url>/2021/09/11/Windows%E4%BD%BF%E7%94%A8WSL2%E5%AE%89%E8%A3%85Docker-Desktop/</url>
+    <content><![CDATA[<h1 id="安装要求"><a href="#安装要求" class="headerlink" title="安装要求"></a>安装要求</h1><ul>
+<li>Windows 10 64 位：Home 或 Pro 2004（内部版本 19041）或更高版本，或者 Enterprise 或 Education 1909（内部版本 18363）或更高版本。</li>
+<li>虚拟机平台</li>
+<li>适用于Linux的Windows子系统</li>
+<li>在 BIOS 中启用虚拟化</li>
+</ul>
+<h1 id="开启-适用于Linux的Windows子系统-和-虚拟机平台"><a href="#开启-适用于Linux的Windows子系统-和-虚拟机平台" class="headerlink" title="开启 适用于Linux的Windows子系统 和 虚拟机平台"></a>开启 适用于Linux的Windows子系统 和 虚拟机平台</h1><h2 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h2><ol>
+<li>打开<strong>PowerShell</strong></li>
+<li>开启<strong>虚拟机平台</strong><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart</span><br></pre></td></tr></table></figure></li>
+<li>开启<strong>适用于Linux的Windows子系统</strong> <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart</span><br></pre></td></tr></table></figure></li>
+</ol>
+<h2 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h2><ul>
+<li>在 <strong>Windows功能</strong> 中勾选 <strong>适用于Linux的Windows子系统</strong> 和 <strong>虚拟机平台</strong> 选项</li>
+</ul>
+<p><img src="/attachment/Windows%E4%BD%BF%E7%94%A8WSL2%E5%AE%89%E8%A3%85Docker-Desktop/Windows%E5%8A%9F%E8%83%BD.png" alt="Windows功能"></p>
+<h1 id="将WSL1更新到WSL2"><a href="#将WSL1更新到WSL2" class="headerlink" title="将WSL1更新到WSL2"></a>将WSL1更新到WSL2</h1><ul>
+<li>下载并执行<strong>Linux内核更新包</strong></li>
+</ul>
+<p>官方文档: <a href="https://docs.microsoft.com/zh-cn/windows/wsl/install-win10">https://docs.microsoft.com/zh-cn/windows/wsl/install-win10</a><br>Linux内核更新包: <a href="https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi">https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi</a></p>
+<ul>
+<li>将<strong>WSL2</strong>设置为默认版本</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wsl --set-default-version 2</span><br></pre></td></tr></table></figure>
+
+<h1 id="安装Docker-Desktop"><a href="#安装Docker-Desktop" class="headerlink" title="安装Docker Desktop"></a>安装Docker Desktop</h1><ul>
+<li>下载安装包</li>
+</ul>
+<p>官方下载链接: <a href="https://docs.docker.com/desktop/windows/install/">https://docs.docker.com/desktop/windows/install/</a></p>
+<p><img src="/attachment/Windows%E4%BD%BF%E7%94%A8WSL2%E5%AE%89%E8%A3%85Docker-Desktop/%E5%AE%89%E8%A3%85%E5%8C%85.png" alt="安装包"></p>
+<ul>
+<li>打开安装包, 勾选 <strong>Install required Windows components for WSL2</strong></li>
+</ul>
+<p>![Installing Docker Desktop](&#x2F;attachment&#x2F;Windows使用WSL2安装Docker-Desktop&#x2F;Installing Docker Desktop.png)</p>
+<ul>
+<li><p>点击 <strong>OK</strong>, 等待安装完成</p>
+</li>
+<li><p>打开 <strong>Docker Desktop</strong></p>
+</li>
+<li><p>勾选 <strong>Settings &gt; General &gt; Use the WSL 2 based engine</strong>, 使用基于WSL 2的引擎</p>
+</li>
+</ul>
+<p>![Use the WSL 2 based engine](&#x2F;attachment&#x2F;Windows使用WSL2安装Docker-Desktop&#x2F;Use the WSL 2 based engine.png)</p>
+<ul>
+<li>勾选 <strong>Resources &gt; WSL Integration &gt; Enable integration with my default WSL distro</strong>, 启用与默认WSL发行版的集成</li>
+</ul>
+<p>![Enable integration with my default WSL distro](&#x2F;attachment&#x2F;Windows使用WSL2安装Docker-Desktop&#x2F;Enable integration with my default WSL distro.png)</p>
+<ul>
+<li><p>点击 <strong>Apply &amp; Restart</strong>, 等待Docker重启</p>
+</li>
+<li><p>查看WSL子系统</p>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wsl -l -v</span><br></pre></td></tr></table></figure>
+
+<p>![wsl -l -v](&#x2F;attachment&#x2F;Windows使用WSL2安装Docker-Desktop&#x2F;wsl -l -v.png)</p>
+<font color="red">
+<b>docker-desktop</b> 是默认的WSL 2发行版
+以后下载的镜像容器都在 <b>docker-desktop-data</b> 里面非常占用资源
+</font>
+
+<ul>
+<li>打开<strong>CMD&#x2F;PowerShell</strong>, 输入命令</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker -v</span><br></pre></td></tr></table></figure>
+
+<p>![docker -v](&#x2F;attachment&#x2F;Windows使用WSL2安装Docker-Desktop&#x2F;docker -v.png)</p>
+<h1 id="转移docker-desktop-data"><a href="#转移docker-desktop-data" class="headerlink" title="转移docker-desktop-data"></a>转移docker-desktop-data</h1><font color="red">
+注: 默认安装在C盘, 使用docker会产生很多资源占用, 建议将 <b>docker-desktop-data</b> 转移到其他盘
+</font>
+
+<ul>
+<li>关闭要转移的子系统</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">终止所有子系统</span></span><br><span class="line">wsl --shutdown</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">终止指定的子系统, 如 docker-desktop-data</span></span><br><span class="line">wsl --terminate docker-desktop-data</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>将子系统导出为tar包</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wsl --export docker-desktop-data F:/WSL/docker-desktop-data/docker-desktop.tar</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>使用wsl命令注销并删除子系统</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wsl --unregister docker-desktop-data</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>重新导入子系统到指定目录</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wsl --import docker-desktop-data F:/WSL/docker-desktop-data F:/WSL/docker-desktop-data/docker-desktop.tar</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>删除tar包</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">del F:/WSL/docker-desktop-data/docker-desktop.tar</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>容器</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+        <tag>Docker Desktop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis入门到放弃</title>
+    <url>/2022/10/15/Redis%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/</url>
+    <content><![CDATA[<h1 id="Redis入门到放弃"><a href="#Redis入门到放弃" class="headerlink" title="Redis入门到放弃"></a>Redis入门到放弃</h1><p>Redis全名Remote Dictionary Server，即远程字段服务。Redis是一个使用C语言编写的高性能key-value数据库。</p>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>Redis提供了五种数据类型：<code>string</code>、<code>hash</code>、<code>list</code>、<code>set</code>、<code>zset</code>。</p>
+<h3 id="string-字符串"><a href="#string-字符串" class="headerlink" title="string 字符串"></a>string 字符串</h3><p>string是redis中最常用且最基本的数据类型。string是二进制安全的，这意味着string类型的值可以包含任何数据，包括图片、序列化对象，甚至是压缩包文件等。redis一个键最大可存储512mb。</p>
+<ul>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; SET domain &quot;khazan1004.github.io&quot;</span><br><span class="line">OK</span><br><span class="line">redis 127.0.0.1:6379&gt; GET domain</span><br><span class="line">&quot;khazan1004.github.io&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="hash-哈希"><a href="#hash-哈希" class="headerlink" title="hash 哈希"></a>hash 哈希</h3><ul>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; HMSET user:khazan username khazan domain khazan1004.github.io </span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; HGETALL user:khazan</span><br><span class="line">1) &quot;username&quot;</span><br><span class="line">2) &quot;khazan&quot;</span><br><span class="line">3) &quot;domain&quot;</span><br><span class="line">4) &quot;khazan1004.github.io &quot;</span><br></pre></td></tr></table></figure>
+hash使用<code>HMSET</code>赋值，<code>HGETALL</code>取值。<br>每个hash可以存储<code>2^32 -1</code>键值对（40多亿）。</li>
+</ul>
+<h3 id="list-列表"><a href="#list-列表" class="headerlink" title="list 列表"></a>list 列表</h3><p>Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。</p>
+<ul>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; lpush vip 张三</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 李四</span><br><span class="line">(integer) 2</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 王五</span><br><span class="line">(integer) 3</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 老六</span><br><span class="line">(integer) 4</span><br><span class="line">redis 127.0.0.1:6379&gt; lrange vip 0 5</span><br><span class="line">1) &quot;张三&quot;</span><br><span class="line">2) &quot;李四&quot;</span><br><span class="line">3) &quot;王五&quot;</span><br><span class="line">4) &quot;老六&quot;</span><br></pre></td></tr></table></figure>
+list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存储40多亿)。</li>
+</ul>
+<h3 id="set-集合"><a href="#set-集合" class="headerlink" title="set 集合"></a>set 集合</h3><p>Set是string类型的无序集合。<br>集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。</p>
+<ul>
+<li>SADD指令<br>添加一个string元素到,key对应的set集合中，成功返回1,如果元素已经在集合中返回0,key对应的set不存在返回错误。</li>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; sadd vip 张三</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 李四</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 王五</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 老六</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 老六</span><br><span class="line">(integer) 0</span><br><span class="line">redis 127.0.0.1:6379&gt; smembers vip</span><br><span class="line">1) &quot;张三&quot;</span><br><span class="line">2) &quot;老六&quot;</span><br><span class="line">3) &quot;王五&quot;</span><br><span class="line">4) &quot;李四&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="zset-有序集合"><a href="#zset-有序集合" class="headerlink" title="zset 有序集合"></a>zset 有序集合</h3><h2 id="编码格式"><a href="#编码格式" class="headerlink" title="编码格式"></a>编码格式</h2><h3 id="int"><a href="#int" class="headerlink" title="int"></a>int</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SET shortint 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; GET shortint</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379&gt; type shortint</span><br><span class="line">string</span><br><span class="line">127.0.0.1:6379&gt; object encoding shortint</span><br><span class="line">&quot;int&quot;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+        <tag>C/C++</tag>
+      </tags>
+  </entry>
+</search>
