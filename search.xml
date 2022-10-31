@@ -1,6 +1,454 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Docker安装Redis\Nginx\MySQL\RabbitMQ</title>
+    <url>/2021/09/12/Docker%E5%AE%89%E8%A3%85Redis-Nginx-MySQL-RabbitMQ/</url>
+    <content><![CDATA[<h1 id="docker基本用法"><a href="#docker基本用法" class="headerlink" title="docker基本用法"></a>docker基本用法</h1><ul>
+<li>搜索镜像<ul>
+<li>方法一: 使用命令搜索  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker search 镜像名:版本</span><br></pre></td></tr></table></figure></li>
+<li>方法二: Docker Hub搜索, 可以查看详细版本号<br>  <a href="https://hub.docker.com/">Docker Hub</a></li>
+</ul>
+</li>
+<li>拉取镜像<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull 镜像名</span><br></pre></td></tr></table></figure></li>
+<li>启动容器<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -it ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-i</td>
+<td align="left">交互式操作</td>
+</tr>
+<tr>
+<td align="left">-t</td>
+<td align="left">终端</td>
+</tr>
+<tr>
+<td align="left">-d</td>
+<td align="left">分离模式, 不进入容器</td>
+</tr>
+<tr>
+<td align="left">ubuntu</td>
+<td align="left">ubuntu 镜像</td>
+</tr>
+<tr>
+<td align="left">&#x2F;bin&#x2F;bash</td>
+<td align="left">放在镜像名后的是命令，这里我们希望有个交互式 Shell，因此用的是 &#x2F;bin&#x2F;bash</td>
+</tr>
+</tbody></table>
+</li>
+<li>进入容器<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker exec -it 容器名或容器id /bin/bash</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker attach</span><br></pre></td></tr></table></figure>
+  -d, –detach               Detached mode: run command in the background<br>   –detach-keys string   Override the key sequence for detaching a<br>                      container<br>  -e, –env list             Set environment variables<br>   –env-file list        Read in a file of environment variables<br>  -i, –interactive          Keep STDIN open even if not attached<br>   –privileged           Give extended privileges to the command<br>  -t, –tty                  Allocate a pseudo-TTY<br>  -u, –user string          Username or UID (format:<br>                      &lt;name|uid&gt;[:&lt;group|gid&gt;])<br>  -w, –workdir string       Working directory inside the container</li>
+<li>启动容器<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker stop &lt;容器 ID&gt;</span><br></pre></td></tr></table></figure></li>
+<li>停止容器<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker restart &lt;容器 ID&gt;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="安装Redis"><a href="#安装Redis" class="headerlink" title="安装Redis"></a>安装Redis</h1><ul>
+<li><p>拉取官方镜像</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull redis:latest</span><br></pre></td></tr></table></figure></li>
+<li><p>下载redis.conf</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">wget http://download.redis.io/redis-stable/redis.conf</span><br></pre></td></tr></table></figure></li>
+<li><p>修改redis.conf</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 监听指定地址, 注释掉后可监听所有接口</span><br><span class="line"># bind 127.0.0.1 -::1</span><br><span class="line"># 默认yes, 开启保护模式，限制为本地访问, no/yes</span><br><span class="line">protected-mode no</span><br><span class="line"># 设置端口</span><br><span class="line">port=6379</span><br><span class="line"># 默认no, 守护进程方式启动, no/yes</span><br><span class="line">daemonize yes</span><br><span class="line"># 设置密码</span><br><span class="line">requirepass 123456</span><br><span class="line"># 开启持久化</span><br><span class="line">appendonly yes</span><br></pre></td></tr></table></figure></li>
+<li><p>启动redis</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -p 6379:6379 --name redis -v /usr/local/docker/redis.conf:/etc/redis/redis.conf -v /usr/local/dockr/data:/data -d redis redis-server /etc/redis/redis.conf --appendonly yes</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-p 6380:6380</td>
+<td align="left">端口映射</td>
+</tr>
+<tr>
+<td align="left">–name redis</td>
+<td align="left">容器名</td>
+</tr>
+<tr>
+<td align="left">-v</td>
+<td align="left">挂载目录</td>
+</tr>
+<tr>
+<td align="left">-d redis</td>
+<td align="left">后台启动</td>
+</tr>
+<tr>
+<td align="left">redis-server &#x2F;etc&#x2F;redis&#x2F;redis.conf</td>
+<td align="left">指定配置文件</td>
+</tr>
+<tr>
+<td align="left">appendonly yes</td>
+<td align="left">开启持久化</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>进入redis容器, 进行测试</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker exec -it redis /bin/bash</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="安装Nginx"><a href="#安装Nginx" class="headerlink" title="安装Nginx"></a>安装Nginx</h1><ul>
+<li>拉取官方镜像<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull nginx:latest</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="安装MySQL"><a href="#安装MySQL" class="headerlink" title="安装MySQL"></a>安装MySQL</h1><ul>
+<li>拉取官方镜像<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull mysql:latest</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="安装RabbitMQ"><a href="#安装RabbitMQ" class="headerlink" title="安装RabbitMQ"></a>安装RabbitMQ</h1><ul>
+<li>拉取官方镜像<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull rabbitmq:latest</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>容器</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>JNI/JNA学习</title>
+    <url>/2022/10/15/JNI-JNA%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h1 id="JNI简介"><a href="#JNI简介" class="headerlink" title="JNI简介"></a>JNI简介</h1><h1 id="JNA简介"><a href="#JNA简介" class="headerlink" title="JNA简介"></a>JNA简介</h1>]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>JNI</tag>
+        <tag>JNA</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Docker常用命令</title>
+    <url>/2022/09/05/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
+    <content><![CDATA[<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><ul>
+<li><h2 id="docker-search"><a href="#docker-search" class="headerlink" title="docker search"></a>docker search</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">搜索镜像</span></span><br><span class="line">docker search</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">过滤-是官方镜像</span></span><br><span class="line">--filter=is-official=true</span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-run"><a href="#docker-run" class="headerlink" title="docker run"></a>docker run</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">vim /etc/docker/daemon.json</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;registry-mirrors&quot;: [</span><br><span class="line">		&quot;http://hub-mirror.c.163.com&quot;,</span><br><span class="line">		&quot;https://docker.mirrors.ustc.edu.cn&quot;,</span><br><span class="line">		&quot;https://registry.docker-cn.com&quot;</span><br><span class="line">	]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-exec"><a href="#docker-exec" class="headerlink" title="docker exec"></a>docker exec</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-rmi"><a href="#docker-rmi" class="headerlink" title="docker rmi"></a>docker rmi</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker rmi zookeeper-2181</span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-image"><a href="#docker-image" class="headerlink" title="docker image"></a>docker image</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">清理悬空镜像(没有标签名且没被引用)</span> </span><br><span class="line">docker image prune</span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-inspect"><a href="#docker-inspect" class="headerlink" title="docker inspect"></a>docker inspect</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看容器静态IP</span></span><br><span class="line">docker inspect --format=&#x27;&#123;&#123;range .NetworkSettings.Networks&#125;&#125;&#123;&#123;.IPAddress&#125;&#125;&#123;&#123;end&#125;&#125;&#x27; zookeeper-2181</span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-history"><a href="#docker-history" class="headerlink" title="docker history"></a>docker history</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看镜像历史</span></span><br><span class="line">docker history redis</span><br></pre></td></tr></table></figure></li>
+<li><h2 id="docker-cp"><a href="#docker-cp" class="headerlink" title="docker cp"></a>docker cp</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拷贝宿主机文件到容器</span></span><br><span class="line">docker cp /usr/script/shudown_shell.sh &#123;容器ID&#125;:/usr/tomcat_xxx/bin</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">反之, 拷贝容器文件到宿主机</span></span><br><span class="line">docker cp &#123;容器ID&#125;:/usr/tomcat_xxx/logs/cataline.out /usr/logs</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="安装应用"><a href="#安装应用" class="headerlink" title="安装应用"></a>安装应用</h1><p>docker network 默认使用bridge(172.17.0.0&#x2F;16)，容器每次启动IP都会变动，不利于维护管理</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker network create --subnet=172.18.0.0/16 localnet</span><br></pre></td></tr></table></figure>
+
+<h2 id="关系型数据库"><a href="#关系型数据库" class="headerlink" title="关系型数据库"></a>关系型数据库</h2><h3 id="安装-Mysql"><a href="#安装-Mysql" class="headerlink" title="安装 Mysql"></a>安装 Mysql</h3><ul>
+<li>安装指令<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -itd </span><br><span class="line">	--name mysql-3306 </span><br><span class="line">	-p 3306:3306 </span><br><span class="line">	-v /data/mysql-3306/conf:/etc/mysql </span><br><span class="line">	-v /data/mysql-3306/logs:/var/log/mysql </span><br><span class="line">	-v /data/mysql-3306/data:/var/lib/mysql </span><br><span class="line">	-v /data/mysql-3306/mysql-files:/var/lib/mysql-files </span><br><span class="line">	-e MYSQL_ROOT_PASSWORD=123456 </span><br><span class="line">	--network localnet </span><br><span class="line">	--ip 172.18.0.2 </span><br><span class="line">	mysql:latest</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="安装-MariaDB"><a href="#安装-MariaDB" class="headerlink" title="安装 MariaDB"></a>安装 MariaDB</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull mariadb:latest</span><br></pre></td></tr></table></figure>
+<h3 id="安装-PostgreSQL"><a href="#安装-PostgreSQL" class="headerlink" title="安装 PostgreSQL"></a>安装 PostgreSQL</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull postgres:latest</span><br></pre></td></tr></table></figure>
+<h3 id="安装-Odoo"><a href="#安装-Odoo" class="headerlink" title="安装 Odoo"></a>安装 Odoo</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull odoo:latest</span><br></pre></td></tr></table></figure>
+<h3 id="安装-Oracle"><a href="#安装-Oracle" class="headerlink" title="安装 Oracle"></a>安装 Oracle</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="非关系型数据库"><a href="#非关系型数据库" class="headerlink" title="非关系型数据库"></a>非关系型数据库</h2><h3 id="安装-Redis"><a href="#安装-Redis" class="headerlink" title="安装 Redis"></a>安装 Redis</h3><ul>
+<li>打开CMD执行指令<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">	--name redis-6379 \</span><br><span class="line">	-p 6379:6379 \</span><br><span class="line">	-v /usr/redis/redis-6379/conf:/etc/redis/ \</span><br><span class="line">	-v /usr/redis/redis-6379/data:/data \</span><br><span class="line">	redis:latest \</span><br><span class="line">	redis-server /etc/redis/redis.conf \</span><br><span class="line">	--appendonly yes \</span><br><span class="line">	--requirepass &quot;123456&quot;</span><br></pre></td></tr></table></figure></li>
+<li>进入容器测试<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker exec -it redis-6379 redis-cli</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="安装-MongoDB"><a href="#安装-MongoDB" class="headerlink" title="安装 MongoDB"></a>安装 MongoDB</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -itd --name mongo -p 27017:27017 mongo:latest --auth</span><br></pre></td></tr></table></figure>
+<h2 id="消息中间件"><a href="#消息中间件" class="headerlink" title="消息中间件"></a>消息中间件</h2><h3 id="安装-Kafka"><a href="#安装-Kafka" class="headerlink" title="安装 Kafka"></a>安装 Kafka</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull kafka:latest</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker run -d </span><br><span class="line">--name kafka-9092 </span><br><span class="line">-p 9092:9092 </span><br><span class="line">-e KAFKA_BROKER_ID=0 </span><br><span class="line">-e KAFKA_ZOOKEEPER_CONNECT=10.0.0.101:2181 </span><br><span class="line">-e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://10.0.0.101:9092 </span><br><span class="line">-e KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092 </span><br><span class="line">wurstmeister/kafka:latest</span><br><span class="line"></span><br><span class="line">:&lt;&lt;!</span><br><span class="line">-e </span><br><span class="line">	KAFKA_BROKER_ID: 				在kafka集群中，每个kafka都有一个BROKER_ID来区分自己</span><br><span class="line">	KAFKA_ZOOKEEPER_CONNECT: 		配置zookeeper管理kafka的路径</span><br><span class="line">	KAFKA_ADVERTISED_LISTENERS: 	把kafka的地址端口注册给zookeeper</span><br><span class="line">	KAFKA_LISTENERS: 				配置kafka的监听端口</span><br><span class="line">!</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-ActiveMQ"><a href="#安装-ActiveMQ" class="headerlink" title="安装 ActiveMQ"></a>安装 ActiveMQ</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull webcenter/activemq:latest</span><br></pre></td></tr></table></figure>
+<h3 id="安装-RocketMQ"><a href="#安装-RocketMQ" class="headerlink" title="安装 RocketMQ"></a>安装 RocketMQ</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull foxiswho/rocketmq:latest</span><br></pre></td></tr></table></figure>
+
+<h2 id="搜索引擎"><a href="#搜索引擎" class="headerlink" title="搜索引擎"></a>搜索引擎</h2><h3 id="安装-RedisSearch"><a href="#安装-RedisSearch" class="headerlink" title="安装 RedisSearch"></a>安装 RedisSearch</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull redislabs/redisearch:latest</span><br></pre></td></tr></table></figure>
+
+<h3 id="安装-ElasticSearch"><a href="#安装-ElasticSearch" class="headerlink" title="安装 ElasticSearch"></a>安装 ElasticSearch</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull elasticsearch:latest</span><br></pre></td></tr></table></figure>
+<h3 id="安装-Solr"><a href="#安装-Solr" class="headerlink" title="安装 Solr"></a>安装 Solr</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull </span><br></pre></td></tr></table></figure>
+
+<h2 id="安装-Sentinel"><a href="#安装-Sentinel" class="headerlink" title="安装 Sentinel"></a>安装 Sentinel</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull bladex/sentinel-dashboard:latest</span><br><span class="line">docker run -d </span><br><span class="line">	--name sentinel-8858 </span><br><span class="line">	-p 8858:8858 </span><br><span class="line">	bladex/sentinel-dashborad:latest </span><br></pre></td></tr></table></figure>
+<h2 id="安装-Kibana"><a href="#安装-Kibana" class="headerlink" title="安装 Kibana"></a>安装 Kibana</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull kibana:latest</span><br></pre></td></tr></table></figure>
+<h2 id="安装-Logstash"><a href="#安装-Logstash" class="headerlink" title="安装 Logstash"></a>安装 Logstash</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull logstash:latest</span><br></pre></td></tr></table></figure>
+<h2 id="安装-FileBeat"><a href="#安装-FileBeat" class="headerlink" title="安装 FileBeat"></a>安装 FileBeat</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull prima/filebeat:latest</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="安装-Nacos"><a href="#安装-Nacos" class="headerlink" title="安装 Nacos"></a>安装 Nacos</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull nacos/nacos-server:latest</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="安装-Zookeeper"><a href="#安装-Zookeeper" class="headerlink" title="安装 Zookeeper"></a>安装 Zookeeper</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull zookeeper:latest</span><br><span class="line">docker run -td </span><br><span class="line">	--name zookeeper-2181 </span><br><span class="line">	-p 2181:2181 zookeeper:latest</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装-Zipkin"><a href="#安装-Zipkin" class="headerlink" title="安装 Zipkin"></a>安装 Zipkin</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker pull openzipkin/zipkin:latest</span><br><span class="line">docker run </span><br><span class="line">	-e STORAGE_TYPE=elasticsearch </span><br><span class="line">	-e ES_HOSTS=192.168.1.200:9200 </span><br><span class="line">	openzipkin/zipkin-dependencies:latest</span><br></pre></td></tr></table></figure>
+
+<h1 id="其他指令"><a href="#其他指令" class="headerlink" title="其他指令"></a>其他指令</h1><h2 id="容器和宿主机时间同步"><a href="#容器和宿主机时间同步" class="headerlink" title="容器和宿主机时间同步"></a>容器和宿主机时间同步</h2><ul>
+<li>已运行的容器  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">创建目录</span></span><br><span class="line">docker exec -it &#123;容器ID&#125; bash -c &quot;mkdir -p /usr/share/zoneinfo/Asia&quot;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从宿主机拷贝</span></span><br><span class="line">docker cp /usr/share/zoneinfo/Asia/Shanghai &#123;容器ID&#125;:/usr/share/zoneinfo/Asia</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">查看</span></span><br><span class="line">docker exec -it &#123;容器ID&#125; bash -c &quot;ls -l /usr/share/zoneinfo/Asia/Shanghai&quot;</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">覆盖</span></span><br><span class="line">docker exec -it &#123;容器ID&#125; bash -c &quot;cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime&quot;</span><br></pre></td></tr></table></figure></li>
+<li>dockerfile创建容器  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime</span><br></pre></td></tr></table></figure></li>
+<li>镜像创建容器<br>  创建容器时使用 -v 参数让容器使用宿主机的 &#x2F;etc&#x2F;localtime 文件  <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">-v /etc/localtime:/etc/localtime</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>容器</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java8版本特性</title>
+    <url>/2022/10/15/Java8%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7/</url>
+    <content><![CDATA[<h1 id="Java8版本特性"><a href="#Java8版本特性" class="headerlink" title="Java8版本特性"></a>Java8版本特性</h1><h2 id="函数式接口"><a href="#函数式接口" class="headerlink" title="函数式接口"></a>函数式接口</h2><p>使用函数式接口配合Lambda表达式可以极大的简化代码</p>
+<h3 id="Java内置有四大核心函数式接口"><a href="#Java内置有四大核心函数式接口" class="headerlink" title="Java内置有四大核心函数式接口"></a>Java内置有四大核心函数式接口</h3><ul>
+<li>消费型接口 Cosumer 一个参数, 无返回值</li>
+<li>供给型接口 Supplier 无参数, 有返回值</li>
+<li>函数型接口 Function 一个参数, 一个返回值</li>
+<li>断言型接口 Predicate 一个参数, 布尔返回值</li>
+</ul>
+<h3 id="使用-FunctionInterface注解自定义函数式接口"><a href="#使用-FunctionInterface注解自定义函数式接口" class="headerlink" title="使用@FunctionInterface注解自定义函数式接口"></a>使用@FunctionInterface注解自定义函数式接口</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">MyFunctionalInterface</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">myMethod</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Lambda表达式"><a href="#Lambda表达式" class="headerlink" title="Lambda表达式"></a>Lambda表达式</h2><ul>
+<li>语法:<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">(参数列表) -&gt; &#123;方法主体&#125;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Java8之前创建Runnable:</span></span><br><span class="line"><span class="type">Runnable</span> <span class="variable">runnable</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 方法主体</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// Java8 Lambda创建Runnable</span></span><br><span class="line"><span class="type">Runnable</span> <span class="variable">lambdaRunnable</span> <span class="operator">=</span> () -&gt; &#123;</span><br><span class="line">    <span class="comment">// 方法主体</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="Optional类"><a href="#Optional类" class="headerlink" title="Optional类"></a>Optional类</h2><h2 id="新的时间日期API"><a href="#新的时间日期API" class="headerlink" title="新的时间日期API"></a>新的时间日期API</h2><h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2>]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java串口/网口通信</title>
+    <url>/2022/10/15/Java%E4%B8%B2%E5%8F%A3-%E7%BD%91%E5%8F%A3%E9%80%9A%E4%BF%A1/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java使用Jedis操作Redis</title>
+    <url>/2022/10/15/Java%E4%BD%BF%E7%94%A8Jedis%E6%93%8D%E4%BD%9CRedis/</url>
+    <content><![CDATA[<h1 id="Java使用Jedis操作Redis"><a href="#Java使用Jedis操作Redis" class="headerlink" title="Java使用Jedis操作Redis"></a>Java使用Jedis操作Redis</h1>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java对接微信支付</title>
+    <url>/2022/08/15/Java%E5%AF%B9%E6%8E%A5%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98/</url>
+    <content><![CDATA[<h4 id="导包"><a href="#导包" class="headerlink" title="导包"></a>导包</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line"> 	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.binarywang<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>weixin-java-pay<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="动态设置微信支付配置策略"><a href="#动态设置微信支付配置策略" class="headerlink" title="动态设置微信支付配置策略"></a>动态设置微信支付配置策略</h3><ul>
+<li>WxPayService.addConfig(String mchId, WxPayConfig wxPayConfig)<ul>
+<li>加入新的 WxPayConfig, 适用于动态添加新的微信公众号配置.</li>
+</ul>
+</li>
+<li>WxPayConfigHolder.set(final String label)<ul>
+<li>设置当前微信支付配置策略</li>
+<li>WxPayConfigHolder 起始是对一个ThreadLocal<String> THREAD_LOCAL的封装, 来控制当前线程WxPayService使用的WxPayConfig, 所以可以通过AOP动态设置支付方式, 完成支付配置的动态兼容.</li>
+</ul>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>微信支付</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java网络爬虫入门</title>
+    <url>/2022/10/15/Java%E7%BD%91%E7%BB%9C%E7%88%AC%E8%99%AB%E5%85%A5%E9%97%A8/</url>
+    <content><![CDATA[<h3 id="URL重写-URLRewrite"><a href="#URL重写-URLRewrite" class="headerlink" title="URL重写: URLRewrite"></a>URL重写: URLRewrite</h3><h3 id="文件编码处理"><a href="#文件编码处理" class="headerlink" title="文件编码处理:"></a>文件编码处理:</h3><ul>
+<li><h4 id="根据请求头判断编码"><a href="#根据请求头判断编码" class="headerlink" title="根据请求头判断编码"></a>根据请求头判断编码</h4></li>
+<li><h4 id="编码检测框架-Cpdetector"><a href="#编码检测框架-Cpdetector" class="headerlink" title="编码检测框架: Cpdetector"></a>编码检测框架: Cpdetector</h4><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 网页编码检测第三方工具 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>cpdetector<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>cpdetector<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.10<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mozilla.intl<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>chardet<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>antlr<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>antlr<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.7.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="开发注意点"><a href="#开发注意点" class="headerlink" title="开发注意点"></a>开发注意点</h3><ul>
+<li><h4 id="伪造IP"><a href="#伪造IP" class="headerlink" title="伪造IP"></a>伪造IP</h4>部分网站是通过X-Forwarded-For, Proxy-Client-IP, WL-Proxy-Client-IP, HTTP_CLIENT_IP, HTTP_X_FORWARDED_FOR, X-Real-IP请求头进行的IP校验, 可以通过修改请求头实现IP伪造.<br>  但如果使用Remote_Addr进行的IP校验则无法伪造, 只能进行IP代理.</li>
+</ul>
+<h3 id="常见异常"><a href="#常见异常" class="headerlink" title="常见异常"></a>常见异常</h3><ol>
+<li>The valid characters are defined in RFC 7230 and RFC 3986</li>
+</ol>
+<h1 id="相关博客"><a href="#相关博客" class="headerlink" title="相关博客"></a>相关博客</h1><p><a href="https://blog.csdn.net/qq_24857659/article/details/125535137">HTTP协议</a></p>
+]]></content>
+      <categories>
+        <category>网络爬虫</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>网络爬虫</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MapStruct学习</title>
+    <url>/2022/10/15/MapStruct%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<p><a href="https://mapstruct.org/documentation/stable/reference/html/">官方文档</a><br><a href="https://mapstruct.org/documentation/dev/api/">官方API文档</a><br><a href="https://github.com/mapstruct/mapstruct/releases/tag/1.4.2.Final">Github</a></p>
+<h2 id="快速入门"><a href="#快速入门" class="headerlink" title="快速入门"></a>快速入门</h2><h3 id="导包"><a href="#导包" class="headerlink" title="导包"></a>导包</h3><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">properties</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">org.mapstruct.version</span>&gt;</span>1.4.2.Final<span class="tag">&lt;/<span class="name">org.mapstruct.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">properties</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h3 id="配置编译插件"><a href="#配置编译插件" class="headerlink" title="配置编译插件"></a>配置编译插件</h3><figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">source</span>&gt;</span>$&#123;java.version&#125;<span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">target</span>&gt;</span>$&#123;java.version&#125;<span class="tag">&lt;/<span class="name">target</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">annotationProcessorPaths</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">path</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.projectlombok<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>lombok<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">path</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct.extensions.spring<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-spring-extensions<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.extensions.spring.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">path</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.mapstruct<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>mapstruct-processor<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;org.mapstruct.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="name">path</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">annotationProcessorPaths</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">showWarnings</span>&gt;</span>true<span class="tag">&lt;/<span class="name">showWarnings</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">compilerArgs</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">                    默认false, 如果设置为true，@Generated则禁止在生成的映射器类的注释中创建时间戳。</span></span><br><span class="line"><span class="comment">                    --&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">arg</span>&gt;</span>-Amapstruct.suppressGeneratorTimestamp=true<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">                    默认false, 如果设置为true，则 MapStruct 在其中记录其主要决策。注意，在maven写的时候，还showWarnings需要加上maven-compiler-plugin的配置有问题。</span></span><br><span class="line"><span class="comment">                    --&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">arg</span>&gt;</span>-Amapstruct.verbose=true<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">                    默认false, 如果设置为true，则禁止在生成的映射器类comment中的@Generated注释中创建属性。注释包含有关 MapStruct 版本和用于注释处理的编译器的信息。</span></span><br><span class="line"><span class="comment">                    --&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">arg</span>&gt;</span>-Amapstruct.suppressGeneratorVersionInfoComment=true<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">                    基于应该生成哪些映射器的组件模型的名称（请参阅检索映射器）。</span></span><br><span class="line"><span class="comment">                    支持的值为：</span></span><br><span class="line"><span class="comment">                        default：默认值, 映射器不使用组件模型，实例通常通过检索 Mappers#getMapper(Class)</span></span><br><span class="line"><span class="comment">                        cdi：生成的映射器是一个应用程序范围的 CDI bean，可以通过 @Inject</span></span><br><span class="line"><span class="comment">                        spring：生成的映射器是一个单例范围的 Spring bean，可以通过 @Autowired</span></span><br><span class="line"><span class="comment">                        jsr330: 生成的映射器用 &#123;@code @Named&#125; 注释，可以通过 检索@Inject，例如使用 Spring</span></span><br><span class="line"><span class="comment">                    --&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">arg</span>&gt;</span>-Amapstruct.defaultComponentModel=spring<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">                    通过参数在映射器中注入的类型uses。这仅用于基于注释的组件模型，例如 CDI、Spring 和 JSR 330。</span></span><br><span class="line"><span class="comment">                    支持的值为：</span></span><br><span class="line"><span class="comment">                        field: 默认值, 依赖项将被注入到字段中</span></span><br><span class="line"><span class="comment">                        constructor: 将生成构造函数。依赖项将通过构造函数注入。</span></span><br><span class="line"><span class="comment">                    --&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">arg</span>&gt;</span>-Amapstruct.defaultInjectionStrategy=field<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--</span></span><br><span class="line"><span class="comment">                    在映射方法的目标对象的属性未填充源值的情况下要应用的默认报告策略。</span></span><br><span class="line"><span class="comment">                    支持的值为：</span></span><br><span class="line"><span class="comment">                        ERROR: 任何未映射的目标属性都会导致映射代码生成失败</span></span><br><span class="line"><span class="comment">                        WARN: 默认值, 任何未映射的目标属性都会在构建时引发警告</span></span><br><span class="line"><span class="comment">                        IGNORE: 未映射的目标属性被忽略</span></span><br><span class="line"><span class="comment">                    --&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="name">arg</span>&gt;</span>-Amapstruct.unmappedTargetPolicy=WARN<span class="tag">&lt;/<span class="name">arg</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="name">compilerArgs</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="定义映射器"><a href="#定义映射器" class="headerlink" title="定义映射器"></a>定义映射器</h2><h4 id="基本映射"><a href="#基本映射" class="headerlink" title="基本映射"></a>基本映射</h4><h3 id="映射组合（Beta）"><a href="#映射组合（Beta）" class="headerlink" title="映射组合（Beta）"></a>映射组合（Beta）</h3><h3 id="向映射器添加自定义方法"><a href="#向映射器添加自定义方法" class="headerlink" title="向映射器添加自定义方法"></a>向映射器添加自定义方法</h3><h3 id="具有多个源参数的映射方法"><a href="#具有多个源参数的映射方法" class="headerlink" title="具有多个源参数的映射方法"></a>具有多个源参数的映射方法</h3><h2 id="数据类型转换"><a href="#数据类型转换" class="headerlink" title="数据类型转换"></a>数据类型转换</h2><h3 id="隐式类型转换"><a href="#隐式类型转换" class="headerlink" title="隐式类型转换"></a>隐式类型转换</h3><h3 id="映射对象引用"><a href="#映射对象引用" class="headerlink" title="映射对象引用"></a>映射对象引用</h3><h3 id="嵌套Bean映射"><a href="#嵌套Bean映射" class="headerlink" title="嵌套Bean映射"></a>嵌套Bean映射</h3><h3 id="映射集合"><a href="#映射集合" class="headerlink" title="映射集合"></a>映射集合</h3><h3 id="映射Map"><a href="#映射Map" class="headerlink" title="映射Map"></a>映射Map</h3><h3 id=""><a href="#" class="headerlink" title=""></a></h3><h2 id="重用映射配置"><a href="#重用映射配置" class="headerlink" title="重用映射配置"></a>重用映射配置</h2><h3 id="继承映射"><a href="#继承映射" class="headerlink" title="继承映射"></a>继承映射</h3><p>@InheritInverseConfiguration</p>
+<h3 id="逆向映射"><a href="#逆向映射" class="headerlink" title="逆向映射"></a>逆向映射</h3><p>@InheritInverseConfiguration</p>
+<h3 id="共享映射配置"><a href="#共享映射配置" class="headerlink" title="共享映射配置"></a>共享映射配置</h3><p>@MapperConfig<br>@Mapper#config</p>
+<h2 id="自定义映射"><a href="#自定义映射" class="headerlink" title="自定义映射"></a>自定义映射</h2><h2 id="使用-MapStruct-SPI"><a href="#使用-MapStruct-SPI" class="headerlink" title="使用 MapStruct SPI"></a>使用 MapStruct SPI</h2><h3 id="自定义访问器命名策略"><a href="#自定义访问器命名策略" class="headerlink" title="自定义访问器命名策略"></a>自定义访问器命名策略</h3><p>映射排除提供程序</p>
+<h3 id="自定义构建器提供程序"><a href="#自定义构建器提供程序" class="headerlink" title="自定义构建器提供程序"></a>自定义构建器提供程序</h3><h3 id="自定义枚举命名策略"><a href="#自定义枚举命名策略" class="headerlink" title="自定义枚举命名策略"></a>自定义枚举命名策略</h3><h3 id="自定义枚举转换策略"><a href="#自定义枚举转换策略" class="headerlink" title="自定义枚举转换策略"></a>自定义枚举转换策略</h3>]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>MapStruct</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MySQL安装</title>
+    <url>/2022/10/19/MySQL%E5%AE%89%E8%A3%85/</url>
+    <content><![CDATA[<p>D:\mysql-5.7.27-winx64目录下添加 my.ini文件<br>my.ini中添加配置。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sql-mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION</span><br></pre></td></tr></table></figure>
+
+<p>d:<br>cd D:\mysql-5.7.27-winx64\bin</p>
+<p>如果你已经安装了服务（Service successfully installed.），请先将服务移除</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqld -remove</span><br></pre></td></tr></table></figure>
+<p> 然后按以下步骤操作：</p>
+<ol>
+<li><p>在管理员权限的cmd窗口中（保证在bin目录下）输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqld --initialize   </span><br></pre></td></tr></table></figure>
+<p>如果碰到：缺少MSVCR120.dll文件、服务无法启动<br>下载地址：<a href="https://www.microsoft.com/zh-cn/download/confirmation.aspx?id=40784">https://www.microsoft.com/zh-cn/download/confirmation.aspx?id=40784</a><br>安装vcredist_x64.exe</p>
+</li>
+<li><p>然后安装mysql服务  输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqld -install</span><br></pre></td></tr></table></figure></li>
+<li><p>最后再启动mysql 输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">net start mysql</span><br></pre></td></tr></table></figure>
+<p>如果还是提示以上错误，启动不成功。就先把mysql&#x2F;data目录下所有文件删除，再重复以上步骤</p>
+</li>
+</ol>
+<p>mysql 设置默认密码</p>
+<p>mysql会默认生成密码在D:\mysql-5.7.27-winx64\data*******.err文件中 搜  password   root@localhost 后面<br>err后缀的文件。</p>
+<p>mysql -u root -p 登录输入默认密码</p>
+<p>设置新密码</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set password for root@localhost = password(&#x27;pj@123456&#x27;);</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
+    <title>POM通用配置抽离</title>
+    <url>/2022/10/15/POM%E9%80%9A%E7%94%A8%E9%85%8D%E7%BD%AE%E6%8A%BD%E7%A6%BB/</url>
+    <content><![CDATA[<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 作为可执行jar --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">build</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">finalName</span>&gt;</span>$&#123;project.artifactId&#125;<span class="tag">&lt;/<span class="name">finalName</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- resources资源配置项 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!-- 通用资源文件 --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">include</span>&gt;</span>**/*.*<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- 放置通用配置yml文件， 开发时仅配置一套参数即可。   实际生产环境下应在每个项目下 与jar同级目录下新建application.yml覆写对应参数。  --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">directory</span>&gt;</span>../conf/devCommons<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">includes</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">include</span>&gt;</span>**/*.yml<span class="tag">&lt;/<span class="name">include</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">includes</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.boot<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-resources-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="name">plugins</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">build</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>Java</tag>
+        <tag>Maven</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Protobuf逆向分析</title>
+    <url>/2022/10/15/Protobuf%E9%80%86%E5%90%91%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>protobuf (protocol buffer) 是谷歌内部的混合语言数据标准。通过将结构化的数据进行序列化(串行化)，用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。</p>
+]]></content>
+      <categories>
+        <category>网络爬虫</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>网络爬虫</tag>
+        <tag>JavaScript</tag>
+        <tag>Protobuf</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SSM配置WebSocket</title>
+    <url>/2021/09/27/SSM%E9%85%8D%E7%BD%AEWebSocket/</url>
+    <content><![CDATA[<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringWebSocketConfig</span> <span class="keyword">extends</span> <span class="title class_">WebMvcConfigurerAdapter</span> <span class="keyword">implements</span> <span class="title class_">WebSocketConfigurer</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//springwebsocket 4.1.5版本前默认支持跨域访问，之后的版本默认不支持跨域，需要设置.setAllowedOrigins(&quot;*&quot;)</span></span><br><span class="line">		registry.addHandler(webSocketHandler(), <span class="string">&quot;/websocket/socketServer.do&quot;</span>).addInterceptors(<span class="keyword">new</span> <span class="title class_">SpringWebSocketHandlerInterceptor</span>());</span><br><span class="line"></span><br><span class="line">		registry.addHandler(webSocketHandler(), <span class="string">&quot;/sockjs/socketServer.do&quot;</span>).addInterceptors(<span class="keyword">new</span> <span class="title class_">SpringWebSocketHandlerInterceptor</span>()).withSockJS();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="keyword">public</span> SpringWebSocketHandler <span class="title function_">webSocketHandler</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SpringWebSocketHandler</span>();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.web.socket.config.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.WebSocketHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.server.HandshakeHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.server.HandshakeInterceptor;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Provides methods for configuring a WebSocket handler.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Rossen Stoyanchev</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 4.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">WebSocketHandlerRegistration</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Add more handlers that will share the same configuration (interceptors, SockJS</span></span><br><span class="line"><span class="comment">	 * config, etc)</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">addHandler</span><span class="params">(WebSocketHandler handler, String... paths)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure the HandshakeHandler to use.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">setHandshakeHandler</span><span class="params">(HandshakeHandler handshakeHandler)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure interceptors for the handshake request.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">addInterceptors</span><span class="params">(HandshakeInterceptor... interceptors)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure allowed &#123;<span class="doctag">@code</span> Origin&#125; header values. This check is mostly designed for</span></span><br><span class="line"><span class="comment">	 * browser clients. There is nothing preventing other types of client to modify the</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@code</span> Origin&#125; header value.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;When SockJS is enabled and origins are restricted, transport types that do not</span></span><br><span class="line"><span class="comment">	 * allow to check request origin (JSONP and Iframe based transports) are disabled.</span></span><br><span class="line"><span class="comment">	 * As a consequence, IE 6 to 9 are not supported when origins are restricted.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Each provided allowed origin must start by &quot;http://&quot;, &quot;https://&quot; or be &quot;*&quot;</span></span><br><span class="line"><span class="comment">	 * (means that all origins are allowed). By default, only same origin requests are</span></span><br><span class="line"><span class="comment">	 * allowed (empty list).</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 4.1.2</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> &lt;a href=&quot;https://tools.ietf.org/html/rfc6454&quot;&gt;RFC 6454: The Web Origin Concept&lt;/a&gt;</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> &lt;a href=&quot;https://github.com/sockjs/sockjs-client#supported-transports-by-browser-html-served-from-http-or-https&quot;&gt;SockJS supported transports by browser&lt;/a&gt;</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">setAllowedOrigins</span><span class="params">(String... origins)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Enable SockJS fallback options.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	SockJsServiceRegistration <span class="title function_">withSockJS</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>SSM</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>SSM</tag>
+        <tag>Spring</tag>
+        <tag>WebSocket</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>UniApp混合开发app对接安卓设备</title>
+    <url>/2022/10/15/UniApp%E6%B7%B7%E5%90%88%E5%BC%80%E5%8F%91app%E5%AF%B9%E6%8E%A5%E5%AE%89%E5%8D%93%E8%AE%BE%E5%A4%87/</url>
+    <content><![CDATA[]]></content>
+      <tags>
+        <tag>UniApp</tag>
+        <tag>Android</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot接口加密</title>
+    <url>/2021/09/27/SpringBoot%E6%8E%A5%E5%8F%A3%E5%8A%A0%E5%AF%86/</url>
+    <content><![CDATA[<h4 id="加密模式"><a href="#加密模式" class="headerlink" title="加密模式"></a>加密模式</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">AES/ECB/PKCS5</span><br></pre></td></tr></table></figure>
+<h4 id="JS代码"><a href="#JS代码" class="headerlink" title="JS代码"></a>JS代码</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Constant</span> <span class="keyword">from</span> <span class="string">&#x27;./../constant.js&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">CryptoJS</span> <span class="keyword">from</span> <span class="string">&#x27;./crypto-js.js&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> aseKey = <span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Utf8</span>.<span class="title function_">parse</span>(<span class="title class_">Constant</span>.<span class="property">AES_ENCRYPT_KEY</span>);</span><br><span class="line"><span class="keyword">const</span> aesConfig = &#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="title class_">CryptoJS</span>.<span class="property">mode</span>.<span class="property">ECB</span>,</span><br><span class="line">    <span class="attr">padding</span>: <span class="title class_">CryptoJS</span>.<span class="property">pad</span>.<span class="property">Pkcs7</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    <span class="title function_">encrypt</span>(<span class="params">content</span>) &#123;</span><br><span class="line">        content = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(content);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="title class_">CryptoJS</span>.<span class="property">AES</span></span><br><span class="line">            .<span class="title function_">encrypt</span>(content, aseKey, aesConfig)</span><br><span class="line">            .<span class="title function_">toString</span>();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="title function_">decrypt</span>(<span class="params">content</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> result = <span class="title class_">CryptoJS</span>.<span class="property">AES</span></span><br><span class="line">            .<span class="title function_">decrypt</span>(content, aseKey, aesConfig)</span><br><span class="line">            .<span class="title function_">toString</span>(<span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Utf8</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="资料下载"><a href="#资料下载" class="headerlink" title="资料下载"></a>资料下载</h3><p><a href="https://github.com/dididi1234/crypto/blob/master/CryptoJS.js">crypto-js.js下载</a></p>
+]]></content>
+      <categories>
+        <category>Spring Boot</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Spring Boot</tag>
+        <tag>接口加密</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Web网络安全</title>
+    <url>/2022/10/15/Web%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/</url>
+    <content><![CDATA[<h3 id="php反序列化、XXE、SSRF"><a href="#php反序列化、XXE、SSRF" class="headerlink" title="php反序列化、XXE、SSRF"></a>php反序列化、XXE、SSRF</h3><h3 id="越权漏洞"><a href="#越权漏洞" class="headerlink" title="越权漏洞"></a>越权漏洞</h3><h3 id="不安全的文件下载和上传"><a href="#不安全的文件下载和上传" class="headerlink" title="不安全的文件下载和上传"></a>不安全的文件下载和上传</h3><h3 id="文件包含（File-Inclusion）"><a href="#文件包含（File-Inclusion）" class="headerlink" title="文件包含（File Inclusion）"></a>文件包含（File Inclusion）</h3><h3 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h3><h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><h3 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h3><pre><code>CSRF 是 Cross Site Request Forgery 的 简称，中文名为跨域请求伪造
+在CSRF的攻击场景中，攻击者会伪造一个请求（一般是一个链接）
+然后欺骗目标用户进行点击，用户一旦点击了这个请求，这个攻击也就完成了
+所以CSRF攻击也被称为“one click”攻击
+</code></pre>
+<h3 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h3>]]></content>
+      <categories>
+        <category>网络安全</category>
+      </categories>
+      <tags>
+        <tag>网络安全</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis入门到放弃</title>
+    <url>/2022/10/15/Redis%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/</url>
+    <content><![CDATA[<h1 id="Redis入门到放弃"><a href="#Redis入门到放弃" class="headerlink" title="Redis入门到放弃"></a>Redis入门到放弃</h1><p>Redis全名Remote Dictionary Server，即远程字段服务。Redis是一个使用C语言编写的高性能key-value数据库。</p>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>Redis提供了五种数据类型：<code>string</code>、<code>hash</code>、<code>list</code>、<code>set</code>、<code>zset</code>。</p>
+<h3 id="string-字符串"><a href="#string-字符串" class="headerlink" title="string 字符串"></a>string 字符串</h3><p>string是redis中最常用且最基本的数据类型。string是二进制安全的，这意味着string类型的值可以包含任何数据，包括图片、序列化对象，甚至是压缩包文件等。redis一个键最大可存储512mb。</p>
+<ul>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; SET domain &quot;khazan1004.github.io&quot;</span><br><span class="line">OK</span><br><span class="line">redis 127.0.0.1:6379&gt; GET domain</span><br><span class="line">&quot;khazan1004.github.io&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="hash-哈希"><a href="#hash-哈希" class="headerlink" title="hash 哈希"></a>hash 哈希</h3><ul>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; HMSET user:khazan username khazan domain khazan1004.github.io </span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; HGETALL user:khazan</span><br><span class="line">1) &quot;username&quot;</span><br><span class="line">2) &quot;khazan&quot;</span><br><span class="line">3) &quot;domain&quot;</span><br><span class="line">4) &quot;khazan1004.github.io &quot;</span><br></pre></td></tr></table></figure>
+hash使用<code>HMSET</code>赋值，<code>HGETALL</code>取值。<br>每个hash可以存储<code>2^32 -1</code>键值对（40多亿）。</li>
+</ul>
+<h3 id="list-列表"><a href="#list-列表" class="headerlink" title="list 列表"></a>list 列表</h3><p>Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。</p>
+<ul>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; lpush vip 张三</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 李四</span><br><span class="line">(integer) 2</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 王五</span><br><span class="line">(integer) 3</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 老六</span><br><span class="line">(integer) 4</span><br><span class="line">redis 127.0.0.1:6379&gt; lrange vip 0 5</span><br><span class="line">1) &quot;张三&quot;</span><br><span class="line">2) &quot;李四&quot;</span><br><span class="line">3) &quot;王五&quot;</span><br><span class="line">4) &quot;老六&quot;</span><br></pre></td></tr></table></figure>
+list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存储40多亿)。</li>
+</ul>
+<h3 id="set-集合"><a href="#set-集合" class="headerlink" title="set 集合"></a>set 集合</h3><p>Set是string类型的无序集合。<br>集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。</p>
+<ul>
+<li>SADD指令<br>添加一个string元素到,key对应的set集合中，成功返回1,如果元素已经在集合中返回0,key对应的set不存在返回错误。</li>
+<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; sadd vip 张三</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 李四</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 王五</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 老六</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 老六</span><br><span class="line">(integer) 0</span><br><span class="line">redis 127.0.0.1:6379&gt; smembers vip</span><br><span class="line">1) &quot;张三&quot;</span><br><span class="line">2) &quot;老六&quot;</span><br><span class="line">3) &quot;王五&quot;</span><br><span class="line">4) &quot;李四&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="zset-有序集合"><a href="#zset-有序集合" class="headerlink" title="zset 有序集合"></a>zset 有序集合</h3><h2 id="编码格式"><a href="#编码格式" class="headerlink" title="编码格式"></a>编码格式</h2><h3 id="int"><a href="#int" class="headerlink" title="int"></a>int</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SET shortint 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; GET shortint</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379&gt; type shortint</span><br><span class="line">string</span><br><span class="line">127.0.0.1:6379&gt; object encoding shortint</span><br><span class="line">&quot;int&quot;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+        <tag>C/C++</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Docker安装RabbitMQ</title>
     <url>/2021/10/19/Docker%E5%AE%89%E8%A3%85RabbitMQ/</url>
     <content><![CDATA[<h2 id="安装-rabbitmq-指定配置映射"><a href="#安装-rabbitmq-指定配置映射" class="headerlink" title="安装 rabbitmq 指定配置映射"></a>安装 rabbitmq 指定配置映射</h2><h3 id="相关资料查阅"><a href="#相关资料查阅" class="headerlink" title="相关资料查阅"></a>相关资料查阅</h3><ul>
@@ -22,6 +470,271 @@
       <tags>
         <tag>Docker</tag>
         <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Redis源码分析</title>
+    <url>/2022/10/15/Redis%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</url>
+    <content><![CDATA[<h1 id="Redis源码分析"><a href="#Redis源码分析" class="headerlink" title="Redis源码分析"></a>Redis源码分析</h1><p>Redis版本：<code>4.0</code><br>Github：<a href="https://github.com/redis/redis/tree/4.0">https://github.com/redis/redis/tree/4.0</a><br>Redis官方文档（纯英文）：<a href="https://redis.io/docs&gt;">https://redis.io/docs&gt;</a><br>Redis官方指令查询（纯英文）：<a href="https://redis.io/commands">https://redis.io/commands</a></p>
+<p>因为Redis 4.0的版本比较常用，所以就直接选择看redis4.0的源码吧。本文主要分析Redis底层如何做的优化，其他的不做过多介绍。</p>
+<h2 id="命令大全"><a href="#命令大全" class="headerlink" title="命令大全"></a>命令大全</h2><ul>
+<li><p>server.h#redisCommandProc</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">void</span> <span class="title function_">redisCommandProc</span><span class="params">(client *c)</span>;</span><br></pre></td></tr></table></figure>
+
+
+</li>
+<li><p>server.h#redisCommand</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisCommand</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *name; <span class="comment">// 命令名称</span></span><br><span class="line">    redisCommandProc *proc; <span class="comment">// 命令对应函数的指针</span></span><br><span class="line">    <span class="type">int</span> arity;</span><br><span class="line">    <span class="type">char</span> *sflags; <span class="comment">/* 标志字符串，一个标志占一个字符。 */</span></span><br><span class="line">    <span class="type">int</span> flags;    <span class="comment">/* The actual flags, obtained from the &#x27;sflags&#x27; field. */</span></span><br><span class="line">    <span class="comment">/* Use a function to determine keys arguments in a command line.</span></span><br><span class="line"><span class="comment">     * Used for Redis Cluster redirect. */</span></span><br><span class="line">    redisGetKeysProc *getkeys_proc;</span><br><span class="line">    <span class="comment">/* What keys should be loaded in background when calling this command? */</span></span><br><span class="line">    <span class="type">int</span> firstkey; <span class="comment">/* The first argument that&#x27;s a key (0 = no keys) */</span></span><br><span class="line">    <span class="type">int</span> lastkey;  <span class="comment">/* The last argument that&#x27;s a key */</span></span><br><span class="line">    <span class="type">int</span> keystep;  <span class="comment">/* The step between first and last key */</span></span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> microseconds, calls;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>sflags属性标志释义</p>
+<table>
+<thead>
+<tr>
+<th>标志</th>
+<th>含义</th>
+<th>带有标志的命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>w</td>
+<td>这是一个<strong>写命令</strong>，会修改数据库。</td>
+<td></td>
+</tr>
+<tr>
+<td>r</td>
+<td>这是一个<strong>读命令</strong>，永远不会修改数据库。</td>
+<td></td>
+</tr>
+<tr>
+<td>m</td>
+<td>这个命令调用后<strong>会增加内存占用</strong>，执行前需要检查内存使用情况，如果内存紧缺的话就禁止执行这个命令。</td>
+<td></td>
+</tr>
+<tr>
+<td>a</td>
+<td>这是一个<strong>管理命令。</strong></td>
+<td>SAVE, BGSAVE, SHUTDOWN等</td>
+</tr>
+<tr>
+<td>p</td>
+<td>这是一个<strong>发布&#x2F;订阅功能相关</strong>的命令。</td>
+<td></td>
+</tr>
+<tr>
+<td>f</td>
+<td>强制复制此命令，不管server.dirty。</td>
+<td></td>
+</tr>
+<tr>
+<td>s</td>
+<td>这个命令<strong>不可以在Lua脚本中使用。</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>R</td>
+<td>这是一个<strong>随机命令</strong>，即命令对于相同的参数&#x2F;数据集，返回结果不同。</td>
+<td></td>
+</tr>
+<tr>
+<td>S</td>
+<td>当<strong>在Lua脚本中使用</strong>这个命令时，对这个命令的<strong>输出结果</strong>进行一次<strong>排序</strong>，使得命令的结果有序。</td>
+<td>SINTER、SUNION、SDIFF、SMEMBERS、KEYS等</td>
+</tr>
+<tr>
+<td>l</td>
+<td>这个命令<strong>允许在数据库加载数据时使用。</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>t</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>M</td>
+<td>这个命令在监听器（monitor）模式下不会自动被传播（propagate）。</td>
+<td></td>
+</tr>
+<tr>
+<td>k</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>F</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+</li>
+<li><p><strong>server.c#redisCommandTable</strong></p>
+<p><code>Redis所有命令信息被保存在了redisCommandTable数组中，我们可以直接通过redisCommand的redisCommandProc属性查看各种命令的执行细节。</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">redisCommand</span> <span class="title">redisCommandTable</span>[] =</span> &#123;</span><br><span class="line">    &#123;<span class="string">&quot;module&quot;</span>,moduleCommand,<span class="number">-2</span>,<span class="string">&quot;as&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;get&quot;</span>,getCommand,<span class="number">2</span>,<span class="string">&quot;rF&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;set&quot;</span>,setCommand,<span class="number">-3</span>,<span class="string">&quot;wm&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;setnx&quot;</span>,setnxCommand,<span class="number">3</span>,<span class="string">&quot;wmF&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    &#123;<span class="string">&quot;setex&quot;</span>,setexCommand,<span class="number">4</span>,<span class="string">&quot;wm&quot;</span>,<span class="number">0</span>,<span class="literal">NULL</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>,<span class="number">0</span>,<span class="number">0</span>&#125;,</span><br><span class="line">    ......</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="RedisDB数据库结构"><a href="#RedisDB数据库结构" class="headerlink" title="RedisDB数据库结构"></a>RedisDB数据库结构</h2><p>​	哈希表 + 链表，类似于Java中的HashTable。</p>
+<h3 id="渐进式rehash-分段式rehash"><a href="#渐进式rehash-分段式rehash" class="headerlink" title="渐进式rehash(分段式rehash)"></a>渐进式rehash(分段式rehash)</h3><ul>
+<li><p>dict.h#dict</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* 这是我们的哈希表结构。当我们实现从旧表到新表的增量重哈希时，每个字典都有两个这样的值。 */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    dictEntry **table;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> sizemask;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> used;</span><br><span class="line">&#125; dictht;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="type">void</span> *privdata;</span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="type">long</span> rehashidx; <span class="comment">/* 如果rehashidx == -1则当前没有执行rehash操作 */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> iterators; <span class="comment">/* 当前正在运行的迭代器的数量 */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="万能数据类型-SDS-Simple-Dynamic-String-动态字符串"><a href="#万能数据类型-SDS-Simple-Dynamic-String-动态字符串" class="headerlink" title="万能数据类型 SDS(Simple Dynamic String, 动态字符串)"></a>万能数据类型 SDS(Simple Dynamic String, 动态字符串)</h3><h3 id="整形存储"><a href="#整形存储" class="headerlink" title="整形存储"></a>整形存储</h3><p><code>直接存储在redisObject的*ptr</code></p>
+<ul>
+<li><p>object.c#tryObjectEncoding</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">robj *<span class="title function_">tryObjectEncoding</span><span class="params">(robj *o)</span> &#123;</span><br><span class="line">    <span class="type">long</span> value;</span><br><span class="line">    sds s = o-&gt;ptr;</span><br><span class="line">    <span class="type">size_t</span> len;</span><br><span class="line"></span><br><span class="line">    serverAssertWithInfo(<span class="literal">NULL</span>,o,o-&gt;type == OBJ_STRING);</span><br><span class="line">    <span class="keyword">if</span> (!sdsEncodedObject(o)) <span class="keyword">return</span> o;</span><br><span class="line">     <span class="keyword">if</span> (o-&gt;refcount &gt; <span class="number">1</span>) <span class="keyword">return</span> o;</span><br><span class="line">    len = sdslen(s);</span><br><span class="line">    <span class="keyword">if</span> (len &lt;= <span class="number">20</span> &amp;&amp; string2l(s,len,&amp;value)) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((server.maxmemory == <span class="number">0</span> ||</span><br><span class="line">            !(server.maxmemory_policy &amp; MAXMEMORY_FLAG_NO_SHARED_INTEGERS)) &amp;&amp;</span><br><span class="line">            value &gt;= <span class="number">0</span> &amp;&amp;</span><br><span class="line">            value &lt; OBJ_SHARED_INTEGERS)</span><br><span class="line">        &#123;</span><br><span class="line">            decrRefCount(o);</span><br><span class="line">            incrRefCount(shared.integers[value]);</span><br><span class="line">            <span class="keyword">return</span> shared.integers[value];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_RAW) sdsfree(o-&gt;ptr);</span><br><span class="line">            o-&gt;encoding = OBJ_ENCODING_INT;</span><br><span class="line">            o-&gt;ptr = (<span class="type">void</span>*) value;</span><br><span class="line">            <span class="keyword">return</span> o;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (len &lt;= OBJ_ENCODING_EMBSTR_SIZE_LIMIT) &#123;</span><br><span class="line">        robj *emb;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_EMBSTR) <span class="keyword">return</span> o;</span><br><span class="line">        emb = createEmbeddedStringObject(s,sdslen(s));</span><br><span class="line">        decrRefCount(o);</span><br><span class="line">        <span class="keyword">return</span> emb;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_RAW &amp;&amp;</span><br><span class="line">        sdsavail(s) &gt; len/<span class="number">10</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        o-&gt;ptr = sdsRemoveFreeSpace(o-&gt;ptr);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> o;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="embstr数据结构"><a href="#embstr数据结构" class="headerlink" title="embstr数据结构"></a>embstr数据结构</h3><p>当string值小于44时, 使用sdshdr8可以直接跟随存储在redisObjecta的ptr后边, 根据 [^Cache Line] 大小为64, 省略一次IO.</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">char</span> *sds;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Note: sdshdr5 is never used, we just access the flags byte directly.</span></span><br><span class="line"><span class="comment"> * However is here to document the layout of type 5 SDS strings. */</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr5</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, and 5 msb of string length */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr8</span> &#123;</span></span><br><span class="line">    <span class="type">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr16</span> &#123;</span></span><br><span class="line">    <span class="type">uint16_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint16_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr32</span> &#123;</span></span><br><span class="line">    <span class="type">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> __<span class="title">attribute__</span> ((__<span class="title">packed__</span>)) <span class="title">sdshdr64</span> &#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint64_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>server.h#redisObject</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisObject</span> &#123;</span></span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS; <span class="comment">/* LRU time (relative to global lru_clock) or</span></span><br><span class="line"><span class="comment">                            * LFU data (least significant 8 bits frequency</span></span><br><span class="line"><span class="comment">                            * and most significant 16 bits access time). */</span></span><br><span class="line">    <span class="type">int</span> refcount;</span><br><span class="line">    <span class="type">void</span> *ptr;</span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>server.h#redisDb</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">/* Redis database representation. There are multiple databases identified</span></span><br><span class="line"><span class="comment"> * by integers from 0 (the default database) up to the max configured</span></span><br><span class="line"><span class="comment"> * database. The database number is the &#x27;id&#x27; field in the structure. */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">redisDb</span> &#123;</span></span><br><span class="line">    dict *dict;                 <span class="comment">/* The keyspace for this DB */</span></span><br><span class="line">    dict *expires;              <span class="comment">/* Timeout of keys with a timeout set */</span></span><br><span class="line">    dict *blocking_keys;        <span class="comment">/* Keys with clients waiting for data (BLPOP)*/</span></span><br><span class="line">    dict *ready_keys;           <span class="comment">/* Blocked keys that received a PUSH */</span></span><br><span class="line">    dict *watched_keys;         <span class="comment">/* WATCHED keys for MULTI/EXEC CAS */</span></span><br><span class="line">    <span class="type">int</span> id;                     <span class="comment">/* Database ID */</span></span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> avg_ttl;          <span class="comment">/* Average TTL, just for stats */</span></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>dict.h#dictEntry</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> &#123;</span></span><br><span class="line">    <span class="type">void</span> *key;</span><br><span class="line">    <span class="class"><span class="keyword">union</span> &#123;</span></span><br><span class="line">        <span class="type">void</span> *val;</span><br><span class="line">        <span class="type">uint64_t</span> u64;</span><br><span class="line">        <span class="type">int64_t</span> s64;</span><br><span class="line">        <span class="type">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dictEntry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; dictEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictType</span> &#123;</span></span><br><span class="line">    <span class="type">uint64_t</span> (*hashFunction)(<span class="type">const</span> <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> *(*keyDup)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> *(*valDup)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *obj);</span><br><span class="line">    <span class="type">int</span> (*keyCompare)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *key1, <span class="type">const</span> <span class="type">void</span> *key2);</span><br><span class="line">    <span class="type">void</span> (*keyDestructor)(<span class="type">void</span> *privdata, <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> (*valDestructor)(<span class="type">void</span> *privdata, <span class="type">void</span> *obj);</span><br><span class="line">    <span class="type">int</span> (*expandAllowed)(<span class="type">size_t</span> moreMem, <span class="type">double</span> usedRatio);</span><br><span class="line">&#125; dictType;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dictht</span> &#123;</span></span><br><span class="line">    dictEntry **table;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> sizemask;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> used;</span><br><span class="line">&#125; dictht;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">dict</span> &#123;</span></span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="type">void</span> *privdata;</span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="type">long</span> rehashidx; <span class="comment">/* rehashing not in progress if rehashidx == -1 */</span></span><br><span class="line">    <span class="type">int16_t</span> pauserehash; <span class="comment">/* If &gt;0 rehashing is paused (&lt;0 indicates coding error) */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>[^Cache Line]: CPU缓存由cache line组成，每一个cache line为64字节，能容纳8个long值。在CPU从主存获取数据时，以cache line为单位加载，于是相邻的数据会一并加载到缓存中。很容易想到，数组的顺序遍历、相邻数据的计算是非常高效的。</p>
+]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+        <tag>C/C++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>微信公众号开发</title>
+    <url>/2021/10/12/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<p><a href="https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login">微信公众平台接口测试</a></p>
+]]></content>
+      <categories>
+        <category>微信公众号</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>微信公众号</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>redis-cli各种命令使用示例</title>
+    <url>/2022/10/15/redis-cli%E5%90%84%E7%A7%8D%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</url>
+    <content><![CDATA[<h1 id="redis-cli各种命令使用示例"><a href="#redis-cli各种命令使用示例" class="headerlink" title="redis-cli各种命令使用示例"></a>redis-cli各种命令使用示例</h1><p>Redis版本：<code>4.0</code><br>Github：<a href="https://github.com/redis/redis/tree/4.0">https://github.com/redis/redis/tree/4.0</a><br>Redis官方文档（纯英文）：<a href="https://redis.io/docs&gt;">https://redis.io/docs&gt;</a><br>Redis官方指令查询（纯英文）：<a href="https://redis.io/commands">https://redis.io/commands</a></p>
+<h4 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h4><h5 id="get"><a href="#get" class="headerlink" title="get"></a>get</h5><blockquote>
+<p>get <key></p>
+<p>获取值。<br>当key不存在时返回<strong>nil</strong>。</p>
+</blockquote>
+<h5 id="set"><a href="#set" class="headerlink" title="set"></a>set</h5><blockquote>
+<p> set <key> <value></p>
+<p>设置值。</p>
+</blockquote>
+<h5 id="getset"><a href="#getset" class="headerlink" title="getset"></a>getset</h5><blockquote>
+<p>getset <key> <value></p>
+<p>设置key的新值，返回key的旧值。<br>当key不存在时，返回<strong>nil</strong>。</p>
+</blockquote>
+<h5 id="setex"><a href="#setex" class="headerlink" title="setex"></a>setex</h5><blockquote>
+<p>setex <key> <seconds> <value></p>
+<p>设置值，并且修改过期时间为 seconds 秒。</p>
+</blockquote>
+<h5 id="setnx"><a href="#setnx" class="headerlink" title="setnx"></a>setnx</h5><blockquote>
+<p>setnx <key> <value></p>
+<p>当key不存在时，为key设置值。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; exists name             # key不存在</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx name khazan       # 设置值成功</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line">&quot;khazan&quot;</span><br><span class="line">127.0.0.1:6379&gt; setnx name lbw          # 覆盖值失败</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line">&quot;khazan&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h4><h4 id="管理命令"><a href="#管理命令" class="headerlink" title="管理命令"></a>管理命令</h4><h5 id="module"><a href="#module" class="headerlink" title="module"></a>module</h5><blockquote>
+<p>模块管理命令</p>
+</blockquote>
+<ol>
+<li><p>load</p>
+<blockquote>
+<p>module load <path> [args…]</p>
+<p>加载模块</p>
+</blockquote>
+</li>
+<li><p>unload</p>
+<blockquote>
+<p>module unload</p>
+<p>卸载模块</p>
+</blockquote>
+</li>
+<li><p>list</p>
+<blockquote>
+<p>module list</p>
+<p>查看已加载的模块</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="psetex"><a href="#psetex" class="headerlink" title="psetex"></a>psetex</h5><h5 id="append"><a href="#append" class="headerlink" title="append"></a>append</h5><h5 id="strlen"><a href="#strlen" class="headerlink" title="strlen"></a>strlen</h5><h5 id="del"><a href="#del" class="headerlink" title="del"></a>del</h5><h5 id="unlink"><a href="#unlink" class="headerlink" title="unlink"></a>unlink</h5><h5 id="exists"><a href="#exists" class="headerlink" title="exists"></a>exists</h5><h5 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h5><h5 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h5><h5 id="bitfield"><a href="#bitfield" class="headerlink" title="bitfield"></a>bitfield</h5><h5 id="setrange"><a href="#setrange" class="headerlink" title="setrange"></a>setrange</h5><h5 id="getrange"><a href="#getrange" class="headerlink" title="getrange"></a>getrange</h5><h5 id="substr"><a href="#substr" class="headerlink" title="substr"></a>substr</h5><h5 id="incr"><a href="#incr" class="headerlink" title="incr"></a>incr</h5><h5 id="decr"><a href="#decr" class="headerlink" title="decr"></a>decr</h5><h5 id="mget"><a href="#mget" class="headerlink" title="mget"></a>mget</h5><h5 id="rpush"><a href="#rpush" class="headerlink" title="rpush"></a>rpush</h5><h5 id="lpush"><a href="#lpush" class="headerlink" title="lpush"></a>lpush</h5><h5 id="rpushx"><a href="#rpushx" class="headerlink" title="rpushx"></a>rpushx</h5><h5 id="lpushx"><a href="#lpushx" class="headerlink" title="lpushx"></a>lpushx</h5><h5 id="linsert"><a href="#linsert" class="headerlink" title="linsert"></a>linsert</h5><h5 id="rpop"><a href="#rpop" class="headerlink" title="rpop"></a>rpop</h5><h5 id="lpop"><a href="#lpop" class="headerlink" title="lpop"></a>lpop</h5><h5 id="brpop"><a href="#brpop" class="headerlink" title="brpop"></a>brpop</h5><h5 id="brpoplpush"><a href="#brpoplpush" class="headerlink" title="brpoplpush"></a>brpoplpush</h5><h5 id="blpop"><a href="#blpop" class="headerlink" title="blpop"></a>blpop</h5><h5 id="llen"><a href="#llen" class="headerlink" title="llen"></a>llen</h5><h5 id="lindex"><a href="#lindex" class="headerlink" title="lindex"></a>lindex</h5><h5 id="lset"><a href="#lset" class="headerlink" title="lset"></a>lset</h5><h5 id="lrange"><a href="#lrange" class="headerlink" title="lrange"></a>lrange</h5><h5 id="ltrim"><a href="#ltrim" class="headerlink" title="ltrim"></a>ltrim</h5><h5 id="lrem"><a href="#lrem" class="headerlink" title="lrem"></a>lrem</h5><h5 id="rpoplpush"><a href="#rpoplpush" class="headerlink" title="rpoplpush"></a>rpoplpush</h5><h5 id="sadd"><a href="#sadd" class="headerlink" title="sadd"></a>sadd</h5><h5 id="srem"><a href="#srem" class="headerlink" title="srem"></a>srem</h5><h5 id="smove"><a href="#smove" class="headerlink" title="smove"></a>smove</h5><h5 id="sismember"><a href="#sismember" class="headerlink" title="sismember"></a>sismember</h5><h5 id="scard"><a href="#scard" class="headerlink" title="scard"></a>scard</h5><h5 id="spop"><a href="#spop" class="headerlink" title="spop"></a>spop</h5><h5 id="srandmember"><a href="#srandmember" class="headerlink" title="srandmember"></a>srandmember</h5><h5 id="sinter"><a href="#sinter" class="headerlink" title="sinter"></a>sinter</h5><h5 id="sinterstore"><a href="#sinterstore" class="headerlink" title="sinterstore"></a>sinterstore</h5><h5 id="sunion"><a href="#sunion" class="headerlink" title="sunion"></a>sunion</h5><h5 id="sunionstore"><a href="#sunionstore" class="headerlink" title="sunionstore"></a>sunionstore</h5><h5 id="sdiff"><a href="#sdiff" class="headerlink" title="sdiff"></a>sdiff</h5><h5 id="sdiffstore"><a href="#sdiffstore" class="headerlink" title="sdiffstore"></a>sdiffstore</h5><h5 id="smembers"><a href="#smembers" class="headerlink" title="smembers"></a>smembers</h5><h5 id="sscan"><a href="#sscan" class="headerlink" title="sscan"></a>sscan</h5><h5 id="zadd"><a href="#zadd" class="headerlink" title="zadd"></a>zadd</h5><h5 id="zincrby"><a href="#zincrby" class="headerlink" title="zincrby"></a>zincrby</h5><h5 id="zrem"><a href="#zrem" class="headerlink" title="zrem"></a>zrem</h5><h5 id="zremrangebyscore"><a href="#zremrangebyscore" class="headerlink" title="zremrangebyscore"></a>zremrangebyscore</h5><h5 id="zremrangebyrank"><a href="#zremrangebyrank" class="headerlink" title="zremrangebyrank"></a>zremrangebyrank</h5><h5 id="zremrangebylex"><a href="#zremrangebylex" class="headerlink" title="zremrangebylex"></a>zremrangebylex</h5><h5 id="zunionstore"><a href="#zunionstore" class="headerlink" title="zunionstore"></a>zunionstore</h5><h5 id="zinterstore"><a href="#zinterstore" class="headerlink" title="zinterstore"></a>zinterstore</h5><h5 id="zrange"><a href="#zrange" class="headerlink" title="zrange"></a>zrange</h5><h5 id="zrangebyscore"><a href="#zrangebyscore" class="headerlink" title="zrangebyscore"></a>zrangebyscore</h5><h5 id="zrevrangebyscore"><a href="#zrevrangebyscore" class="headerlink" title="zrevrangebyscore"></a>zrevrangebyscore</h5><h5 id="zrangebylex"><a href="#zrangebylex" class="headerlink" title="zrangebylex"></a>zrangebylex</h5><h5 id="zrevrangebylex"><a href="#zrevrangebylex" class="headerlink" title="zrevrangebylex"></a>zrevrangebylex</h5><h5 id="zcount"><a href="#zcount" class="headerlink" title="zcount"></a>zcount</h5><h5 id="zlexcount"><a href="#zlexcount" class="headerlink" title="zlexcount"></a>zlexcount</h5><h5 id="zrevrange"><a href="#zrevrange" class="headerlink" title="zrevrange"></a>zrevrange</h5><h5 id="zcard"><a href="#zcard" class="headerlink" title="zcard"></a>zcard</h5><h5 id="zscore"><a href="#zscore" class="headerlink" title="zscore"></a>zscore</h5><h5 id="zrank"><a href="#zrank" class="headerlink" title="zrank"></a>zrank</h5><h5 id="zrevrank"><a href="#zrevrank" class="headerlink" title="zrevrank"></a>zrevrank</h5><h5 id="zscan"><a href="#zscan" class="headerlink" title="zscan"></a>zscan</h5><h5 id="hset"><a href="#hset" class="headerlink" title="hset"></a>hset</h5><h5 id="hsetnx"><a href="#hsetnx" class="headerlink" title="hsetnx"></a>hsetnx</h5><h5 id="hget"><a href="#hget" class="headerlink" title="hget"></a>hget</h5><h5 id="hmset"><a href="#hmset" class="headerlink" title="hmset"></a>hmset</h5><h5 id="hmget"><a href="#hmget" class="headerlink" title="hmget"></a>hmget</h5><h5 id="hincrby"><a href="#hincrby" class="headerlink" title="hincrby"></a>hincrby</h5><h5 id="hincrbyfloat"><a href="#hincrbyfloat" class="headerlink" title="hincrbyfloat"></a>hincrbyfloat</h5><h5 id="hdel"><a href="#hdel" class="headerlink" title="hdel"></a>hdel</h5><h5 id="hlen"><a href="#hlen" class="headerlink" title="hlen"></a>hlen</h5><h5 id="hstrlen"><a href="#hstrlen" class="headerlink" title="hstrlen"></a>hstrlen</h5><h5 id="hkeys"><a href="#hkeys" class="headerlink" title="hkeys"></a>hkeys</h5><h5 id="hvals"><a href="#hvals" class="headerlink" title="hvals"></a>hvals</h5><h5 id="hgetall"><a href="#hgetall" class="headerlink" title="hgetall"></a>hgetall</h5><h5 id="hexists"><a href="#hexists" class="headerlink" title="hexists"></a>hexists</h5><h5 id="hscan"><a href="#hscan" class="headerlink" title="hscan"></a>hscan</h5><h5 id="incrby"><a href="#incrby" class="headerlink" title="incrby"></a>incrby</h5><h5 id="decrby"><a href="#decrby" class="headerlink" title="decrby"></a>decrby</h5><h5 id="incrbyfloat"><a href="#incrbyfloat" class="headerlink" title="incrbyfloat"></a>incrbyfloat</h5><h5 id="mset"><a href="#mset" class="headerlink" title="mset"></a>mset</h5><h5 id="msetnx"><a href="#msetnx" class="headerlink" title="msetnx"></a>msetnx</h5><h5 id="randomkey"><a href="#randomkey" class="headerlink" title="randomkey"></a>randomkey</h5><h5 id="select"><a href="#select" class="headerlink" title="select"></a>select</h5><h5 id="swapdb"><a href="#swapdb" class="headerlink" title="swapdb"></a>swapdb</h5><h5 id="move"><a href="#move" class="headerlink" title="move"></a>move</h5><h5 id="rename"><a href="#rename" class="headerlink" title="rename"></a>rename</h5><h5 id="renamenx"><a href="#renamenx" class="headerlink" title="renamenx"></a>renamenx</h5><h5 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h5><h5 id="expireat"><a href="#expireat" class="headerlink" title="expireat"></a>expireat</h5><h5 id="pexpire"><a href="#pexpire" class="headerlink" title="pexpire"></a>pexpire</h5><h5 id="pexpireat"><a href="#pexpireat" class="headerlink" title="pexpireat"></a>pexpireat</h5><h5 id="keys"><a href="#keys" class="headerlink" title="keys"></a>keys</h5><h5 id="scan"><a href="#scan" class="headerlink" title="scan"></a>scan</h5><h5 id="dbsize"><a href="#dbsize" class="headerlink" title="dbsize"></a>dbsize</h5><h5 id="auth"><a href="#auth" class="headerlink" title="auth"></a>auth</h5><h5 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h5><h5 id="echo"><a href="#echo" class="headerlink" title="echo"></a>echo</h5><h5 id="save"><a href="#save" class="headerlink" title="save"></a>save</h5><h5 id="bgsave"><a href="#bgsave" class="headerlink" title="bgsave"></a>bgsave</h5><h5 id="bgrewriteaof"><a href="#bgrewriteaof" class="headerlink" title="bgrewriteaof"></a>bgrewriteaof</h5><h5 id="shutdown"><a href="#shutdown" class="headerlink" title="shutdown"></a>shutdown</h5><h5 id="lastsave"><a href="#lastsave" class="headerlink" title="lastsave"></a>lastsave</h5><h5 id="type"><a href="#type" class="headerlink" title="type"></a>type</h5><h5 id="multi"><a href="#multi" class="headerlink" title="multi"></a>multi</h5><h5 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h5><h5 id="discard"><a href="#discard" class="headerlink" title="discard"></a>discard</h5><h5 id="sync"><a href="#sync" class="headerlink" title="sync"></a>sync</h5><h5 id="psync"><a href="#psync" class="headerlink" title="psync"></a>psync</h5><h5 id="replconf"><a href="#replconf" class="headerlink" title="replconf"></a>replconf</h5><h5 id="flushdb"><a href="#flushdb" class="headerlink" title="flushdb"></a>flushdb</h5><h5 id="flushall"><a href="#flushall" class="headerlink" title="flushall"></a>flushall</h5><h5 id="sort"><a href="#sort" class="headerlink" title="sort"></a>sort</h5><h5 id="info"><a href="#info" class="headerlink" title="info"></a>info</h5><h5 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h5><h5 id="ttl"><a href="#ttl" class="headerlink" title="ttl"></a>ttl</h5><h5 id="touch"><a href="#touch" class="headerlink" title="touch"></a>touch</h5><h5 id="pttl"><a href="#pttl" class="headerlink" title="pttl"></a>pttl</h5><h5 id="persist"><a href="#persist" class="headerlink" title="persist"></a>persist</h5><h5 id="slaveof"><a href="#slaveof" class="headerlink" title="slaveof"></a>slaveof</h5><h5 id="role"><a href="#role" class="headerlink" title="role"></a>role</h5><h5 id="debug"><a href="#debug" class="headerlink" title="debug"></a>debug</h5><h5 id="config"><a href="#config" class="headerlink" title="config"></a>config</h5><h5 id="subscribe"><a href="#subscribe" class="headerlink" title="subscribe"></a>subscribe</h5><h5 id="unsubscribe"><a href="#unsubscribe" class="headerlink" title="unsubscribe"></a>unsubscribe</h5><h5 id="psubscribe"><a href="#psubscribe" class="headerlink" title="psubscribe"></a>psubscribe</h5><h5 id="punsubscribe"><a href="#punsubscribe" class="headerlink" title="punsubscribe"></a>punsubscribe</h5><h5 id="publish"><a href="#publish" class="headerlink" title="publish"></a>publish</h5><h5 id="pubsub"><a href="#pubsub" class="headerlink" title="pubsub"></a>pubsub</h5><h5 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h5><h5 id="unwatch"><a href="#unwatch" class="headerlink" title="unwatch"></a>unwatch</h5><h5 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster</h5><h5 id="restore"><a href="#restore" class="headerlink" title="restore"></a>restore</h5><h5 id="restore-1"><a href="#restore-1" class="headerlink" title="restore"></a>restore</h5><h5 id="migrate"><a href="#migrate" class="headerlink" title="migrate"></a>migrate</h5><h5 id="asking"><a href="#asking" class="headerlink" title="asking"></a>asking</h5><h5 id="readonly"><a href="#readonly" class="headerlink" title="readonly"></a>readonly</h5><h5 id="readwrite"><a href="#readwrite" class="headerlink" title="readwrite"></a>readwrite</h5><h5 id="dump"><a href="#dump" class="headerlink" title="dump"></a>dump</h5><h5 id="object"><a href="#object" class="headerlink" title="object"></a>object</h5><blockquote>
+<p>object &lt;refcount|encoding|idletime|freq&gt; <key></p>
+<p>object命令可以检查对象的内部结构</p>
+</blockquote>
+<ol>
+<li>refcount – 返回key的值被引用的次数。</li>
+<li>encoding – 返回key的值编码类型。</li>
+<li>idletime – 返回key的值的空闲时间，即最后一次访问以来经过的秒数。</li>
+<li>freq – 返回访问频率。</li>
+</ol>
+<h5 id="memory"><a href="#memory" class="headerlink" title="memory"></a>memory</h5><h5 id="client"><a href="#client" class="headerlink" title="client"></a>client</h5><h5 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h5><h5 id="evalsha"><a href="#evalsha" class="headerlink" title="evalsha"></a>evalsha</h5><h5 id="slowlog"><a href="#slowlog" class="headerlink" title="slowlog"></a>slowlog</h5><h5 id="script"><a href="#script" class="headerlink" title="script"></a>script</h5><h5 id="time"><a href="#time" class="headerlink" title="time"></a>time</h5><h5 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h5><h5 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h5><h5 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h5><h5 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h5><h5 id="command"><a href="#command" class="headerlink" title="command"></a>command</h5><h5 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h5><h5 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h5><h5 id="georadius-ro"><a href="#georadius-ro" class="headerlink" title="georadius_ro"></a>georadius_ro</h5><h5 id="georadiusbymember"><a href="#georadiusbymember" class="headerlink" title="georadiusbymember"></a>georadiusbymember</h5><h5 id="georadiusbymember-ro"><a href="#georadiusbymember-ro" class="headerlink" title="georadiusbymember_ro"></a>georadiusbymember_ro</h5><h5 id="geohash"><a href="#geohash" class="headerlink" title="geohash"></a>geohash</h5><h5 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h5><h5 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h5><h5 id="pfselftest"><a href="#pfselftest" class="headerlink" title="pfselftest"></a>pfselftest</h5><h5 id="pfadd"><a href="#pfadd" class="headerlink" title="pfadd"></a>pfadd</h5><h5 id="pfcount"><a href="#pfcount" class="headerlink" title="pfcount"></a>pfcount</h5><h5 id="pfmerge"><a href="#pfmerge" class="headerlink" title="pfmerge"></a>pfmerge</h5><h5 id="pfdebug"><a href="#pfdebug" class="headerlink" title="pfdebug"></a>pfdebug</h5><h5 id="post"><a href="#post" class="headerlink" title="post"></a>post</h5><h5 id="host"><a href="#host" class="headerlink" title="host"></a>host</h5><h5 id="latency"><a href="#latency" class="headerlink" title="latency"></a>latency</h5>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+        <tag>redis-cli</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>基于JVMTI实现Class文件加密</title>
+    <url>/2021/07/06/%E5%9F%BA%E4%BA%8EJVMTI%E5%AE%9E%E7%8E%B0Class%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h3 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h3><ul>
+<li>Visual Studio 2022</li>
+</ul>
+<h1 id="Class文件结构分析"><a href="#Class文件结构分析" class="headerlink" title="Class文件结构分析"></a>Class文件结构分析</h1><h1 id="实现加密方式"><a href="#实现加密方式" class="headerlink" title="实现加密方式"></a>实现加密方式</h1><h1 id="实现解密功能"><a href="#实现解密功能" class="headerlink" title="实现解密功能"></a>实现解密功能</h1><h1 id="使用’-agentpath’"><a href="#使用’-agentpath’" class="headerlink" title="使用’-agentpath’"></a>使用’-agentpath’</h1>]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>JVMTI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>服务器Https配置</title>
+    <url>/2021/02/04/%E6%9C%8D%E5%8A%A1%E5%99%A8Https%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p><a href="https://help.aliyun.com/document_detail/98728.html?spm=5176.14113079.0.0.30f056a7iUZmzT">配置方法</a></p>
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">vim /usr/local/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">       listen  80;</span><br><span class="line">       server_name 127.0.0.1;</span><br><span class="line"></span><br><span class="line">       # listen 443 ssl;</span><br><span class="line">       #配置HTTPS的默认访问端口为443</span><br><span class="line">       #如果未在此处配置HTTPS的默认访问端口，可能会造成Nginx无法启动</span><br><span class="line">       #如果您使用Nginx 1.15.0及以上版本，请使用listen 443 ssl代替listen 443和ssl on。</span><br><span class="line">       # server_name dlibs.net;</span><br><span class="line">       # ssl_certificate cert/4525413_dlibs.net.pem;</span><br><span class="line">       # ssl_certificate_key cert/4525413_dlibs.net.key;</span><br><span class="line">       # ssl_session_timeout 5m;</span><br><span class="line">       # ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; #表示使用的加密套件的类型</span><br><span class="line">       # ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #表示使用的TLS协议的类型</span><br><span class="line">       # ssl_prefer_server_ciphers on;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">openssl version -a</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">OpenSSL <span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u  <span class="number">20</span> Dec <span class="number">2019</span></span><br><span class="line">built on: reproducible build, <span class="built_in">date</span> unspecified</span><br><span class="line"><span class="function">platform: <span class="title">linux</span>-<span class="title">x86_64</span></span></span><br><span class="line"><span class="function"><span class="title">options</span>:  <span class="title">bn</span>(64,64) <span class="title">rc4</span>(16<span class="title">x</span>,<span class="title">int</span>) <span class="title">des</span>(<span class="title">idx</span>,<span class="title">cisc</span>,16,<span class="title">int</span>) <span class="title">idea</span>(<span class="title">int</span>) <span class="title">blowfish</span>(<span class="title">idx</span>) </span></span><br><span class="line"><span class="function"><span class="title">compiler</span>: <span class="title">gcc</span> -<span class="title">I</span>. -<span class="title">I</span>.. -<span class="title">I</span>../<span class="title">include</span>  -<span class="title">DOPENSSL_THREADS</span> -<span class="title">D_REENTRANT</span> -<span class="title">DDSO_DLFCN</span> -<span class="title">DHAVE_DLFCN_H</span> -<span class="title">Wa</span>,--<span class="title">noexecstack</span> -<span class="title">m64</span> -<span class="title">DL_ENDIAN</span> -<span class="title">O3</span> -<span class="title">Wall</span> -<span class="title">DOPENSSL_IA32_SSE2</span> -<span class="title">DOPENSSL_BN_ASM_MONT</span> -<span class="title">DOPENSSL_BN_ASM_MONT5</span> -<span class="title">DOPENSSL_BN_ASM_GF2m</span> -<span class="title">DRC4_ASM</span> -<span class="title">DSHA1_ASM</span> -<span class="title">DSHA256_ASM</span> -<span class="title">DSHA512_ASM</span> -<span class="title">DMD5_ASM</span> -<span class="title">DAES_ASM</span> -<span class="title">DVPAES_ASM</span> -<span class="title">DBSAES_ASM</span> -<span class="title">DWHIRLPOOL_ASM</span> -<span class="title">DGHASH_ASM</span> -<span class="title">DECP_NISTZ256_ASM</span></span></span><br><span class="line"><span class="function"><span class="title">OPENSSLDIR</span>: &quot;/<span class="title">usr</span>/<span class="title">local</span>/<span class="title">openssl</span>/<span class="title">ssl</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/usr/local/nginx/sbin/nginx -V</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">nginx version: nginx/<span class="number">1</span>.<span class="number">13</span>.<span class="number">7</span></span><br><span class="line">built by gcc <span class="number">4</span>.<span class="number">1</span>.<span class="number">2</span> <span class="number">20080704</span> (Red Hat <span class="number">4</span>.<span class="number">1</span>.<span class="number">2</span>-<span class="number">55</span>)</span><br><span class="line">built with OpenSSL <span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u  <span class="number">20</span> Dec <span class="number">2019</span></span><br><span class="line">TLS SNI support enabled</span><br><span class="line">configure arguments: --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-openssl=/usr/local/openssl-<span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">&lt;Connector port=&quot;<span class="number">443</span>&quot; protocol=&quot;HTTP/<span class="number">1</span>.<span class="number">1</span>&quot; </span><br><span class="line">                SSLEnabled=&quot;true&quot;</span><br><span class="line">                maxThreads=&quot;<span class="number">150</span>&quot; scheme=&quot;https&quot; secure=&quot;true&quot;</span><br><span class="line">                clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; </span><br><span class="line">                keystoreFile=&quot;conf/dlibs.<span class="built_in">net</span>.jks&quot;</span><br><span class="line">                keystorePass=&quot;LN5I3zpu&quot;</span><br><span class="line">                SSLProtocol=&quot;TLSv1+TLSv1.<span class="number">1</span>+TLSv1.<span class="number">2</span>&quot;</span><br><span class="line">                ciphers=&quot;TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256&quot;</span><br><span class="line">                /&gt;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Tomcat</tag>
+        <tag>Nginx</tag>
       </tags>
   </entry>
   <entry>
@@ -131,63 +844,28 @@
       </tags>
   </entry>
   <entry>
-    <title>Redis入门到放弃</title>
-    <url>/2022/10/15/Redis%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83/</url>
-    <content><![CDATA[<h1 id="Redis入门到放弃"><a href="#Redis入门到放弃" class="headerlink" title="Redis入门到放弃"></a>Redis入门到放弃</h1><p>Redis全名Remote Dictionary Server，即远程字段服务。Redis是一个使用C语言编写的高性能key-value数据库。</p>
-<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><p>Redis提供了五种数据类型：<code>string</code>、<code>hash</code>、<code>list</code>、<code>set</code>、<code>zset</code>。</p>
-<h3 id="string-字符串"><a href="#string-字符串" class="headerlink" title="string 字符串"></a>string 字符串</h3><p>string是redis中最常用且最基本的数据类型。string是二进制安全的，这意味着string类型的值可以包含任何数据，包括图片、序列化对象，甚至是压缩包文件等。redis一个键最大可存储512mb。</p>
-<ul>
-<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; SET domain &quot;khazan1004.github.io&quot;</span><br><span class="line">OK</span><br><span class="line">redis 127.0.0.1:6379&gt; GET domain</span><br><span class="line">&quot;khazan1004.github.io&quot;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="hash-哈希"><a href="#hash-哈希" class="headerlink" title="hash 哈希"></a>hash 哈希</h3><ul>
-<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; HMSET user:khazan username khazan domain khazan1004.github.io </span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; HGETALL user:khazan</span><br><span class="line">1) &quot;username&quot;</span><br><span class="line">2) &quot;khazan&quot;</span><br><span class="line">3) &quot;domain&quot;</span><br><span class="line">4) &quot;khazan1004.github.io &quot;</span><br></pre></td></tr></table></figure>
-hash使用<code>HMSET</code>赋值，<code>HGETALL</code>取值。<br>每个hash可以存储<code>2^32 -1</code>键值对（40多亿）。</li>
-</ul>
-<h3 id="list-列表"><a href="#list-列表" class="headerlink" title="list 列表"></a>list 列表</h3><p>Redis 列表是简单的字符串列表，按照插入顺序排序。你可以添加一个元素到列表的头部（左边）或者尾部（右边）。</p>
-<ul>
-<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; lpush vip 张三</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 李四</span><br><span class="line">(integer) 2</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 王五</span><br><span class="line">(integer) 3</span><br><span class="line">redis 127.0.0.1:6379&gt; lpush vip 老六</span><br><span class="line">(integer) 4</span><br><span class="line">redis 127.0.0.1:6379&gt; lrange vip 0 5</span><br><span class="line">1) &quot;张三&quot;</span><br><span class="line">2) &quot;李四&quot;</span><br><span class="line">3) &quot;王五&quot;</span><br><span class="line">4) &quot;老六&quot;</span><br></pre></td></tr></table></figure>
-list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存储40多亿)。</li>
-</ul>
-<h3 id="set-集合"><a href="#set-集合" class="headerlink" title="set 集合"></a>set 集合</h3><p>Set是string类型的无序集合。<br>集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)。</p>
-<ul>
-<li>SADD指令<br>添加一个string元素到,key对应的set集合中，成功返回1,如果元素已经在集合中返回0,key对应的set不存在返回错误。</li>
-<li>示例<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">redis 127.0.0.1:6379&gt; sadd vip 张三</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 李四</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 王五</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 老六</span><br><span class="line">(integer) 1</span><br><span class="line">redis 127.0.0.1:6379&gt; sadd vip 老六</span><br><span class="line">(integer) 0</span><br><span class="line">redis 127.0.0.1:6379&gt; smembers vip</span><br><span class="line">1) &quot;张三&quot;</span><br><span class="line">2) &quot;老六&quot;</span><br><span class="line">3) &quot;王五&quot;</span><br><span class="line">4) &quot;李四&quot;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="zset-有序集合"><a href="#zset-有序集合" class="headerlink" title="zset 有序集合"></a>zset 有序集合</h3><h2 id="编码格式"><a href="#编码格式" class="headerlink" title="编码格式"></a>编码格式</h2><h3 id="int"><a href="#int" class="headerlink" title="int"></a>int</h3><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; SET shortint 1</span><br><span class="line">OK</span><br><span class="line">127.0.0.1:6379&gt; GET shortint</span><br><span class="line">&quot;1&quot;</span><br><span class="line">127.0.0.1:6379&gt; type shortint</span><br><span class="line">string</span><br><span class="line">127.0.0.1:6379&gt; object encoding shortint</span><br><span class="line">&quot;int&quot;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Redis</tag>
-        <tag>NoSQL</tag>
-        <tag>C/C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Redis源码分析</title>
-    <url>/2022/10/15/Redis%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/</url>
-    <content><![CDATA[<h1 id="Redis源码分析"><a href="#Redis源码分析" class="headerlink" title="Redis源码分析"></a>Redis源码分析</h1><p>Redis版本: <code>6.2</code><br>Github：<a href="https://github.com/redis/redis/tree/6.2">https://github.com/redis/redis/tree/6.2</a></p>
-<h2 id="命令大全"><a href="#命令大全" class="headerlink" title="命令大全"></a>命令大全</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// server.c - 195行</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">redisCommand</span> redisCommandTable[] = &#123;&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="RedisDB数据库结构"><a href="#RedisDB数据库结构" class="headerlink" title="RedisDB数据库结构"></a>RedisDB数据库结构</h2><p>哈希表 + 链表, 类似于Java中的HashTable.</p>
-<h3 id="渐进式rehash-分段式rehash"><a href="#渐进式rehash-分段式rehash" class="headerlink" title="渐进式rehash(分段式rehash)"></a>渐进式rehash(分段式rehash)</h3><h3 id="万能数据类型-SDS-Simple-Dynamic-String-动态字符串"><a href="#万能数据类型-SDS-Simple-Dynamic-String-动态字符串" class="headerlink" title="万能数据类型 SDS(Simple Dynamic String, 动态字符串)"></a>万能数据类型 SDS(Simple Dynamic String, 动态字符串)</h3><h3 id="整形存储"><a href="#整形存储" class="headerlink" title="整形存储"></a>整形存储</h3><p>直接存储在redisObject的*ptr</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// object.c - 465行</span></span><br><span class="line"><span class="keyword">if</span> (len &lt;= <span class="number">20</span> &amp;&amp; <span class="built_in">string2l</span>(s,len,&amp;value)) &#123;</span><br><span class="line">        <span class="comment">/* This object is encodable as a long. Try to use a shared object.</span></span><br><span class="line"><span class="comment">         * Note that we avoid using shared integers when maxmemory is used</span></span><br><span class="line"><span class="comment">         * because every object needs to have a private LRU field for the LRU</span></span><br><span class="line"><span class="comment">         * algorithm to work well. */</span></span><br><span class="line">        <span class="keyword">if</span> ((server.maxmemory == <span class="number">0</span> ||</span><br><span class="line">            !(server.maxmemory_policy &amp; MAXMEMORY_FLAG_NO_SHARED_INTEGERS)) &amp;&amp;</span><br><span class="line">            value &gt;= <span class="number">0</span> &amp;&amp;</span><br><span class="line">            value &lt; OBJ_SHARED_INTEGERS)</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">decrRefCount</span>(o);</span><br><span class="line">            <span class="built_in">incrRefCount</span>(shared.integers[value]);</span><br><span class="line">            <span class="keyword">return</span> shared.integers[value];</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_RAW) &#123;</span><br><span class="line">                <span class="built_in">sdsfree</span>(o-&gt;ptr);</span><br><span class="line">                o-&gt;encoding = OBJ_ENCODING_INT;</span><br><span class="line">                o-&gt;ptr = (<span class="type">void</span>*) value;</span><br><span class="line">                <span class="keyword">return</span> o;</span><br><span class="line">            &#125; <span class="keyword">else</span> <span class="keyword">if</span> (o-&gt;encoding == OBJ_ENCODING_EMBSTR) &#123;</span><br><span class="line">                <span class="built_in">decrRefCount</span>(o);</span><br><span class="line">                <span class="keyword">return</span> <span class="built_in">createStringObjectFromLongLongForValue</span>(value);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
-<h3 id="embstr数据结构"><a href="#embstr数据结构" class="headerlink" title="embstr数据结构"></a>embstr数据结构</h3><p>当string值小于44时, 使用sdshdr8可以直接跟随存储在redisObjecta的ptr后边, 根据CacheLine大小为64, 省略一次IO.</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">char</span> *sds;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* Note: sdshdr5 is never used, we just access the flags byte directly.</span></span><br><span class="line"><span class="comment"> * However is here to document the layout of type 5 SDS strings. */</span></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr5 &#123;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, and 5 msb of string length */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr8 &#123;</span><br><span class="line">    <span class="type">uint8_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint8_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr16 &#123;</span><br><span class="line">    <span class="type">uint16_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint16_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr32 &#123;</span><br><span class="line">    <span class="type">uint32_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint32_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">__attribute__</span> ((__packed__)) sdshdr64 &#123;</span><br><span class="line">    <span class="type">uint64_t</span> len; <span class="comment">/* used */</span></span><br><span class="line">    <span class="type">uint64_t</span> alloc; <span class="comment">/* excluding the header and null terminator */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">char</span> flags; <span class="comment">/* 3 lsb of type, 5 unused bits */</span></span><br><span class="line">    <span class="type">char</span> buf[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>CacheLine为64</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// server.h - 668行</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> LRU_BITS 24</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">redisObject</span> &#123;</span><br><span class="line">    <span class="type">unsigned</span> type:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> encoding:<span class="number">4</span>;</span><br><span class="line">    <span class="type">unsigned</span> lru:LRU_BITS; <span class="comment">/* LRU time (relative to global lru_clock) or</span></span><br><span class="line"><span class="comment">                            * LFU data (least significant 8 bits frequency</span></span><br><span class="line"><span class="comment">                            * and most significant 16 bits access time). */</span></span><br><span class="line">    <span class="type">int</span> refcount;</span><br><span class="line">    <span class="type">void</span> *ptr;</span><br><span class="line">&#125; robj;</span><br></pre></td></tr></table></figure>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// server.h - 706行</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">redisDb</span> &#123;</span><br><span class="line">    dict *dict;                 <span class="comment">/* The keyspace for this DB */</span></span><br><span class="line">    dict *expires;              <span class="comment">/* Timeout of keys with a timeout set */</span></span><br><span class="line">    dict *blocking_keys;        <span class="comment">/* Keys with clients waiting for data (BLPOP)*/</span></span><br><span class="line">    dict *ready_keys;           <span class="comment">/* Blocked keys that received a PUSH */</span></span><br><span class="line">    dict *watched_keys;         <span class="comment">/* WATCHED keys for MULTI/EXEC CAS */</span></span><br><span class="line">    <span class="type">int</span> id;                     <span class="comment">/* Database ID */</span></span><br><span class="line">    <span class="type">long</span> <span class="type">long</span> avg_ttl;          <span class="comment">/* Average TTL, just for stats */</span></span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> expires_cursor; <span class="comment">/* Cursor of the active expire cycle. */</span></span><br><span class="line">    list *defrag_later;         <span class="comment">/* List of key names to attempt to defrag one by one, gradually. */</span></span><br><span class="line">&#125; redisDb;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="comment">// dict.h - 50行</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dictEntry</span> &#123;</span><br><span class="line">    <span class="type">void</span> *key;</span><br><span class="line">    <span class="keyword">union</span> &#123;</span><br><span class="line">        <span class="type">void</span> *val;</span><br><span class="line">        <span class="type">uint64_t</span> u64;</span><br><span class="line">        <span class="type">int64_t</span> s64;</span><br><span class="line">        <span class="type">double</span> d;</span><br><span class="line">    &#125; v;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">dictEntry</span> *next;</span><br><span class="line">&#125; dictEntry;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dictType</span> &#123;</span><br><span class="line">    <span class="built_in">uint64_t</span> (*hashFunction)(<span class="type">const</span> <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> *(*keyDup)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *key);</span><br><span class="line">    <span class="type">void</span> *(*valDup)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *obj);</span><br><span class="line">    <span class="built_in">int</span> (*keyCompare)(<span class="type">void</span> *privdata, <span class="type">const</span> <span class="type">void</span> *key1, <span class="type">const</span> <span class="type">void</span> *key2);</span><br><span class="line">    <span class="built_in">void</span> (*keyDestructor)(<span class="type">void</span> *privdata, <span class="type">void</span> *key);</span><br><span class="line">    <span class="built_in">void</span> (*valDestructor)(<span class="type">void</span> *privdata, <span class="type">void</span> *obj);</span><br><span class="line">    <span class="built_in">int</span> (*expandAllowed)(<span class="type">size_t</span> moreMem, <span class="type">double</span> usedRatio);</span><br><span class="line">&#125; dictType;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dictht</span> &#123;</span><br><span class="line">    dictEntry **table;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> size;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> sizemask;</span><br><span class="line">    <span class="type">unsigned</span> <span class="type">long</span> used;</span><br><span class="line">&#125; dictht;</span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">dict</span> &#123;</span><br><span class="line">    dictType *type;</span><br><span class="line">    <span class="type">void</span> *privdata;</span><br><span class="line">    dictht ht[<span class="number">2</span>];</span><br><span class="line">    <span class="type">long</span> rehashidx; <span class="comment">/* rehashing not in progress if rehashidx == -1 */</span></span><br><span class="line">    <span class="type">int16_t</span> pauserehash; <span class="comment">/* If &gt;0 rehashing is paused (&lt;0 indicates coding error) */</span></span><br><span class="line">&#125; dict;</span><br></pre></td></tr></table></figure>
-
+    <title>正则表达式学习</title>
+    <url>/2022/10/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h1 id="正则表达式学习"><a href="#正则表达式学习" class="headerlink" title="正则表达式学习"></a>正则表达式学习</h1><h2 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h2><h3 id="pattern"><a href="#pattern" class="headerlink" title="(?:pattern)"></a>(?:pattern)</h3><p>()表示捕获分组，()会把每个分组里的匹配的值保存起来，从左向右，以分组的左括号为标志，第一个出现的分组的组号为1，第二个为2，以此类推</p>
+<p>(?:)表示非捕获分组，和捕获分组唯一的区别在于，非捕获分组匹配的值不会保存起来</p>
+<h3 id="x3D-pattern"><a href="#x3D-pattern" class="headerlink" title="(?&#x3D;pattern)"></a>(?&#x3D;pattern)</h3><p>正向肯定预查（look ahead positive assert），匹配pattern前面的位置。这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。</p>
+<p>简单说，以 xxx(?&#x3D;pattern)为例，就是捕获以pattern结尾的内容xxx</p>
+<p>例如，”Windows(?&#x3D;95|98|NT|2000)”能匹配”Windows2000”中的”Windows”，但不能匹配”Windows3.1”中的”Windows”。预查不消耗字符，也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始。</p>
+<h3 id="pattern-1"><a href="#pattern-1" class="headerlink" title="(?!pattern)"></a>(?!pattern)</h3><p>正向否定预查(negative assert)，在任何不匹配pattern的字符串开始处匹配查找字符串。这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。</p>
+<p>简单说，以 xxx(?!pattern)为例，就是捕获不以pattern结尾的内容xxx</p>
+<p>例如”Windows(?!95|98|NT|2000)”能匹配”Windows3.1”中的”Windows”，但不能匹配”Windows2000”中的”Windows”。预查不消耗字符，也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始。</p>
+<h3 id="lt-x3D-pattern"><a href="#lt-x3D-pattern" class="headerlink" title="(?&lt;&#x3D;pattern)"></a>(?&lt;&#x3D;pattern)</h3><p>反向(look behind)肯定预查，与正向肯定预查类似，只是方向相反。</p>
+<p>简单说，以(?&lt;&#x3D;pattern)xxx为例，就是捕获以pattern开头的内容xxx。</p>
+<p>例如，”(?&lt;&#x3D;95|98|NT|2000)Windows”能匹配”2000Windows”中的”Windows”，但不能匹配”3.1Windows”中的”Windows”。</p>
+<h3 id="lt-pattern"><a href="#lt-pattern" class="headerlink" title="(?&lt;!pattern)"></a>(?&lt;!pattern)</h3><p>简单说，以(?&lt;!pattern)xxx为例，就是捕获不以pattern开头的内容xxx。</p>
+<p>反向否定预查，与正向否定预查类似，只是方向相反。例如”(?&lt;!95|98|NT|2000)Windows”能匹配”3.1Windows”中的”Windows”，但不能匹配”2000Windows”中的”Windows”。</p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a href="https://www.cnblogs.com/dogecheng/p/11466687.html">正则表达式中(?:pattern)、(?&#x3D;pattern)、(?!pattern)、(?&lt;&#x3D;pattern)和(?&lt;!pattern) </a><br><a href="https://deerchao.cn/tutorials/regex/regex.htm">正则表达式30分钟入门教程</a><br><a href="https://www.runoob.com/regexp/regexp-metachar.html">正则表达式 - 菜鸟教程</a><br><a href="https://blog.csdn.net/lxcnn/article/details/4304651">正则基础 - NFA引擎匹配原理</a><br><a href="https://blog.csdn.net/shashagcsdn/article/details/80017678">正则表达式－－ (?:pattern)与(?&#x3D;pattern)的区别</a></p>
 ]]></content>
       <categories>
-        <category>Redis</category>
+        <category>网络爬虫</category>
       </categories>
       <tags>
-        <tag>Redis</tag>
-        <tag>NoSQL</tag>
-        <tag>C/C++</tag>
+        <tag>正则表达式</tag>
       </tags>
   </entry>
 </search>

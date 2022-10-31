@@ -1,6 +1,20 @@
+#page-header:not(.not-top-img):before,
+#footer:before {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+    content: '';
+}
+
+[data-theme='dark'] #page-header:not(.not-top-img):before,
+[data-theme='dark'] #footer:before {
+    background-color: rgba(13, 13, 13, 0.5);
+}
+
 /* 主背景, 需要开启主体配置background功能 */
 #web_bg {
-    background-image: url("/images/guimie.webp"), linear-gradient(60deg, rgba(255, 165, 150, 0.5) 5%, rgba(0, 228, 255, 0.35));
+    background-image: url("/images/web_bg.webp"), linear-gradient(60deg, rgba(255, 165, 150, 0.5) 5%, rgba(0, 228, 255, 0.35));
     background-repeat: no-repeat;
     background-size: cover;
 }
