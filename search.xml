@@ -1,6 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Docker安装RabbitMQ</title>
+    <url>/2021/10/19/Docker%E5%AE%89%E8%A3%85RabbitMQ/</url>
+    <content><![CDATA[<h2 id="安装-rabbitmq-指定配置映射"><a href="#安装-rabbitmq-指定配置映射" class="headerlink" title="安装 rabbitmq 指定配置映射"></a>安装 rabbitmq 指定配置映射</h2><h3 id="相关资料查阅"><a href="#相关资料查阅" class="headerlink" title="相关资料查阅"></a>相关资料查阅</h3><ul>
+<li>配置文件目录: <a href="https://hub.docker.com/_/rabbitmq?tab=description">(英文) Docker Hub</a></li>
+<li>rabbitmq 环境变量: <a href="https://www.rabbitmq.com/configure.html#supported-environment-variables">(英文) 官方文档</a></li>
+<li>rabbitmqctl 指令文档: <a href="https://www.rabbitmq.com/rabbitmqctl.8.html">(英文) 官方文档</a></li>
+</ul>
+<h2 id="安装并启动rabbitmq"><a href="#安装并启动rabbitmq" class="headerlink" title="安装并启动rabbitmq"></a>安装并启动rabbitmq</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拉取容器</span></span><br><span class="line">docker pull rabbitmq:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">运行容器</span></span><br><span class="line">docker run -d</span><br><span class="line">--name rabbitmq-5672</span><br><span class="line">-p 5672:5672</span><br><span class="line">-p 15672:15672</span><br><span class="line">-v /data/rabbitmq-5672/conf:/etc/rabbitmq</span><br><span class="line">-v /data/rabbitmq-5672/data:/var/lib/rabbitmq</span><br><span class="line">-v /data/rabbitmq-5672/logs:/var/log/rabbitmq</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=guest</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=guest</span><br><span class="line">rabbitmq:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/etc/rabbitmq: 		配置文件目录, 包含有rabbitmq.config</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/var/lib/rabbitmq: 	数据文件目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/var/log/rabbitmq: 	日志目录</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><h3 id="开启web管理模块"><a href="#开启web管理模块" class="headerlink" title="开启web管理模块"></a>开启web管理模块</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先使用 docker <span class="built_in">exec</span> 进入容器</span></span><br><span class="line">docker exec -it rabbitmq-5672 bash</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用rabbitmq-plugins指令启动web管理模块</span></span><br><span class="line">rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="加入-SpringBoot-项目进行测试"><a href="#加入-SpringBoot-项目进行测试" class="headerlink" title="加入 SpringBoot 项目进行测试"></a>加入 SpringBoot 项目进行测试</h2><h2 id="相关问题处理"><a href="#相关问题处理" class="headerlink" title="相关问题处理"></a>相关问题处理</h2><ul>
+<li><h3 id="User-can-only-log-in-via-localhost"><a href="#User-can-only-log-in-via-localhost" class="headerlink" title="User can only log in via localhost"></a>User can only log in via localhost</h3>据了解是RabbitMQ 3.3.0更新后guest账号不再支持在非本地外的环境登录, 建议新增账号进行登录.<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">增加root用户</span></span><br><span class="line">rabbitmqctl add_user root 123456</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">赋予管理员权限</span></span><br><span class="line">rabbitmqctl set_user_tags root administrator</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">赋予Virtual host权限</span></span><br><span class="line">rabbitmqctl set_permissions -p / root &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;</span><br></pre></td></tr></table></figure></li>
+</ul>
+]]></content>
+      <categories>
+        <category>容器</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+        <tag>RabbitMQ</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Docker安装Redis\Nginx\MySQL\RabbitMQ</title>
     <url>/2021/09/12/Docker%E5%AE%89%E8%A3%85Redis-Nginx-MySQL-RabbitMQ/</url>
     <content><![CDATA[<h1 id="docker基本用法"><a href="#docker基本用法" class="headerlink" title="docker基本用法"></a>docker基本用法</h1><ul>
@@ -109,19 +133,6 @@
       </tags>
   </entry>
   <entry>
-    <title>JNI/JNA学习</title>
-    <url>/2022/10/15/JNI-JNA%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<h1 id="JNI简介"><a href="#JNI简介" class="headerlink" title="JNI简介"></a>JNI简介</h1><h1 id="JNA简介"><a href="#JNA简介" class="headerlink" title="JNA简介"></a>JNA简介</h1>]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>JNI</tag>
-        <tag>JNA</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Docker常用命令</title>
     <url>/2022/09/05/Docker%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/</url>
     <content><![CDATA[<h1 id="常用指令"><a href="#常用指令" class="headerlink" title="常用指令"></a>常用指令</h1><ul>
@@ -189,28 +200,16 @@
       </tags>
   </entry>
   <entry>
-    <title>Java8版本特性</title>
-    <url>/2022/10/15/Java8%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7/</url>
-    <content><![CDATA[<h1 id="Java8版本特性"><a href="#Java8版本特性" class="headerlink" title="Java8版本特性"></a>Java8版本特性</h1><h2 id="函数式接口"><a href="#函数式接口" class="headerlink" title="函数式接口"></a>函数式接口</h2><p>使用函数式接口配合Lambda表达式可以极大的简化代码</p>
-<h3 id="Java内置有四大核心函数式接口"><a href="#Java内置有四大核心函数式接口" class="headerlink" title="Java内置有四大核心函数式接口"></a>Java内置有四大核心函数式接口</h3><ul>
-<li>消费型接口 Cosumer 一个参数, 无返回值</li>
-<li>供给型接口 Supplier 无参数, 有返回值</li>
-<li>函数型接口 Function 一个参数, 一个返回值</li>
-<li>断言型接口 Predicate 一个参数, 布尔返回值</li>
-</ul>
-<h3 id="使用-FunctionInterface注解自定义函数式接口"><a href="#使用-FunctionInterface注解自定义函数式接口" class="headerlink" title="使用@FunctionInterface注解自定义函数式接口"></a>使用@FunctionInterface注解自定义函数式接口</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">MyFunctionalInterface</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">myMethod</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h2 id="Lambda表达式"><a href="#Lambda表达式" class="headerlink" title="Lambda表达式"></a>Lambda表达式</h2><ul>
-<li>语法:<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">(参数列表) -&gt; &#123;方法主体&#125;;</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Java8之前创建Runnable:</span></span><br><span class="line"><span class="type">Runnable</span> <span class="variable">runnable</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 方法主体</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// Java8 Lambda创建Runnable</span></span><br><span class="line"><span class="type">Runnable</span> <span class="variable">lambdaRunnable</span> <span class="operator">=</span> () -&gt; &#123;</span><br><span class="line">    <span class="comment">// 方法主体</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h2 id="Optional类"><a href="#Optional类" class="headerlink" title="Optional类"></a>Optional类</h2><h2 id="新的时间日期API"><a href="#新的时间日期API" class="headerlink" title="新的时间日期API"></a>新的时间日期API</h2><h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2>]]></content>
+    <title>JNI/JNA学习</title>
+    <url>/2022/10/15/JNI-JNA%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<h1 id="JNI简介"><a href="#JNI简介" class="headerlink" title="JNI简介"></a>JNI简介</h1><h1 id="JNA简介"><a href="#JNA简介" class="headerlink" title="JNA简介"></a>JNA简介</h1>]]></content>
       <categories>
         <category>Java</category>
       </categories>
       <tags>
         <tag>Java</tag>
+        <tag>JNI</tag>
+        <tag>JNA</tag>
       </tags>
   </entry>
   <entry>
@@ -222,19 +221,6 @@
       </categories>
       <tags>
         <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Java使用Jedis操作Redis</title>
-    <url>/2022/10/15/Java%E4%BD%BF%E7%94%A8Jedis%E6%93%8D%E4%BD%9CRedis/</url>
-    <content><![CDATA[<h1 id="Java使用Jedis操作Redis"><a href="#Java使用Jedis操作Redis" class="headerlink" title="Java使用Jedis操作Redis"></a>Java使用Jedis操作Redis</h1>]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Redis</tag>
-        <tag>NoSQL</tag>
       </tags>
   </entry>
   <entry>
@@ -260,6 +246,44 @@
       <tags>
         <tag>Java</tag>
         <tag>微信支付</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java使用Jedis操作Redis</title>
+    <url>/2022/10/15/Java%E4%BD%BF%E7%94%A8Jedis%E6%93%8D%E4%BD%9CRedis/</url>
+    <content><![CDATA[<h1 id="Java使用Jedis操作Redis"><a href="#Java使用Jedis操作Redis" class="headerlink" title="Java使用Jedis操作Redis"></a>Java使用Jedis操作Redis</h1>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Java8版本特性</title>
+    <url>/2022/10/15/Java8%E7%89%88%E6%9C%AC%E7%89%B9%E6%80%A7/</url>
+    <content><![CDATA[<h1 id="Java8版本特性"><a href="#Java8版本特性" class="headerlink" title="Java8版本特性"></a>Java8版本特性</h1><h2 id="函数式接口"><a href="#函数式接口" class="headerlink" title="函数式接口"></a>函数式接口</h2><p>使用函数式接口配合Lambda表达式可以极大的简化代码</p>
+<h3 id="Java内置有四大核心函数式接口"><a href="#Java内置有四大核心函数式接口" class="headerlink" title="Java内置有四大核心函数式接口"></a>Java内置有四大核心函数式接口</h3><ul>
+<li>消费型接口 Cosumer 一个参数, 无返回值</li>
+<li>供给型接口 Supplier 无参数, 有返回值</li>
+<li>函数型接口 Function 一个参数, 一个返回值</li>
+<li>断言型接口 Predicate 一个参数, 布尔返回值</li>
+</ul>
+<h3 id="使用-FunctionInterface注解自定义函数式接口"><a href="#使用-FunctionInterface注解自定义函数式接口" class="headerlink" title="使用@FunctionInterface注解自定义函数式接口"></a>使用@FunctionInterface注解自定义函数式接口</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@FunctionalInterface</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">MyFunctionalInterface</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">void</span> <span class="title function_">myMethod</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="Lambda表达式"><a href="#Lambda表达式" class="headerlink" title="Lambda表达式"></a>Lambda表达式</h2><ul>
+<li>语法:<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">(参数列表) -&gt; &#123;方法主体&#125;;</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Java8之前创建Runnable:</span></span><br><span class="line"><span class="type">Runnable</span> <span class="variable">runnable</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="comment">// 方法主体</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="comment">// Java8 Lambda创建Runnable</span></span><br><span class="line"><span class="type">Runnable</span> <span class="variable">lambdaRunnable</span> <span class="operator">=</span> () -&gt; &#123;</span><br><span class="line">    <span class="comment">// 方法主体</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h2 id="Optional类"><a href="#Optional类" class="headerlink" title="Optional类"></a>Optional类</h2><h2 id="新的时间日期API"><a href="#新的时间日期API" class="headerlink" title="新的时间日期API"></a>新的时间日期API</h2><h2 id="接口"><a href="#接口" class="headerlink" title="接口"></a>接口</h2>]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
       </tags>
   </entry>
   <entry>
@@ -308,29 +332,35 @@
     <title>MySQL安装</title>
     <url>/2022/10/19/MySQL%E5%AE%89%E8%A3%85/</url>
     <content><![CDATA[<p>D:\mysql-5.7.27-winx64目录下添加 my.ini文件<br>my.ini中添加配置。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">sql-mode=ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION</span><br></pre></td></tr></table></figure>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="attr">sql-mode</span>=<span class="literal">ON</span>LY_FULL_GROUP_BY,STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION</span><br></pre></td></tr></table></figure>
 
-<p>d:<br>cd D:\mysql-5.7.27-winx64\bin</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">d:</span><br><span class="line">cd D:\mysql-5.7.27-winx64\bin</span><br></pre></td></tr></table></figure>
+
 <p>如果你已经安装了服务（Service successfully installed.），请先将服务移除</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqld -remove</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mysqld -remove</span><br></pre></td></tr></table></figure>
 <p> 然后按以下步骤操作：</p>
 <ol>
 <li><p>在管理员权限的cmd窗口中（保证在bin目录下）输入：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqld --initialize   </span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mysqld --initialize   </span><br></pre></td></tr></table></figure>
 <p>如果碰到：缺少MSVCR120.dll文件、服务无法启动<br>下载地址：<a href="https://www.microsoft.com/zh-cn/download/confirmation.aspx?id=40784">https://www.microsoft.com/zh-cn/download/confirmation.aspx?id=40784</a><br>安装vcredist_x64.exe</p>
 </li>
 <li><p>然后安装mysql服务  输入：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mysqld -install</span><br></pre></td></tr></table></figure></li>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">mysqld -install</span><br></pre></td></tr></table></figure></li>
 <li><p>最后再启动mysql 输入：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">net start mysql</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">net start mysql</span><br></pre></td></tr></table></figure>
 <p>如果还是提示以上错误，启动不成功。就先把mysql&#x2F;data目录下所有文件删除，再重复以上步骤</p>
 </li>
 </ol>
-<p>mysql 设置默认密码</p>
-<p>mysql会默认生成密码在D:\mysql-5.7.27-winx64\data*******.err文件中 搜  password   root@localhost 后面<br>err后缀的文件。</p>
+<h3 id="mysql-设置默认密码"><a href="#mysql-设置默认密码" class="headerlink" title="mysql 设置默认密码"></a>mysql 设置默认密码</h3><p>mysql会默认生成密码在D:\mysql-5.7.27-winx64\data*******.err文件中 搜  password   root@localhost 后面<br>err后缀的文件。</p>
 <p>mysql -u root -p 登录输入默认密码</p>
 <p>设置新密码</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">set password for root@localhost = password(&#x27;pj@123456&#x27;);</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>MySQL</category>
+      </categories>
+      <tags>
+        <tag>MySQL</tag>
+      </tags>
   </entry>
   <entry>
     <title>POM通用配置抽离</title>
@@ -339,6 +369,28 @@
       <tags>
         <tag>Java</tag>
         <tag>Maven</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Netty</title>
+    <url>/2022/10/15/Netty/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Netty 是一个异步事件驱动的网络应用程序框架，用于快速开发可维护的高性能协议服务器和客户端。</p>
+<h4 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">ServerBootstrap</span> <span class="variable">serverBootstrap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ServerBootstrap</span>();</span><br><span class="line"><span class="type">EventLoopGroup</span> <span class="variable">bossGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>(bossGroupSize);</span><br><span class="line"><span class="type">EventLoopGroup</span> <span class="variable">workerGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>(workerGroupSize);</span><br><span class="line">serverBootstrap.group(bossGroup, workerGroup)</span><br><span class="line">    <span class="comment">// 使用Nio服务</span></span><br><span class="line">    .channel(NioServerSocketChannel.class)</span><br><span class="line">    <span class="comment">// 自定义子处理器</span></span><br><span class="line">    .childHandler(<span class="keyword">new</span> <span class="title class_">ChannelInitializer</span>&lt;SocketChannel&gt; &#123;</span><br><span class="line">		<span class="meta">@Override</span></span><br><span class="line">		<span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">initChannel</span><span class="params">(SocketChannel socketChannel)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">			socketChannel.pipeline()</span><br><span class="line">					<span class="comment">//心跳检测：超过xs未触发触发读取事件，则触发userEventTriggered()事件</span></span><br><span class="line">					.addLast(<span class="keyword">new</span> <span class="title class_">IdleStateHandler</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">2</span>, TimeUnit.SECONDS))</span><br><span class="line">					<span class="comment">// &#x27;\n&#x27;结束编码</span></span><br><span class="line">					.addLast(<span class="keyword">new</span> <span class="title class_">LineBasedFrameDecoder</span>(Integer.MAX_VALUE))</span><br><span class="line">					<span class="comment">// 字符串解码</span></span><br><span class="line">					.addLast(<span class="keyword">new</span> <span class="title class_">StringDecoder</span>(Charset.forName(charset)))</span><br><span class="line">					<span class="comment">// 字符串编码</span></span><br><span class="line">					.addLast(<span class="keyword">new</span> <span class="title class_">StringEncoder</span>(Charset.forName(charset)))</span><br><span class="line">					<span class="comment">// 追加&#x27;\n&#x27;结束编码</span></span><br><span class="line">					.addLast(<span class="keyword">new</span> <span class="title class_">LineEncoder</span>(StandardCharsets.UTF_8));</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// 保持连接,类似心跳检测,超过2小时空闲才激活</span></span><br><span class="line">    .childOption(ChannelOption.SO_KEEPALIVE, <span class="literal">true</span>)</span><br><span class="line">    <span class="comment">// 服务端接受连接的队列长度</span></span><br><span class="line">    .option(ChannelOption.SO_BACKLOG, Integer.MAX_VALUE)</span><br><span class="line">    <span class="comment">// 连接超时时长(毫秒)</span></span><br><span class="line">    .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectTimeoutMillis)</span><br><span class="line">    <span class="comment">//接收缓冲区大小</span></span><br><span class="line">    .option(ChannelOption.SO_RCVBUF, <span class="number">128</span> * <span class="number">1024</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h4><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Bootstrap</span> <span class="variable">bootstrap</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Bootstrap</span>();</span><br><span class="line"><span class="type">NioEventLoopGroup</span> <span class="variable">workGroup</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">NioEventLoopGroup</span>();</span><br><span class="line">bootstrap.group(workGroup).channel(NioSocketChannel.class)</span><br><span class="line">	<span class="comment">// &#x27;\n&#x27;结尾帧解码</span></span><br><span class="line">	.handler(<span class="keyword">new</span> <span class="title class_">LineBasedFrameDecoder</span>(Integer.MAX_VALUE))</span><br><span class="line">	<span class="comment">// 消息解码为String</span></span><br><span class="line">	.handler(<span class="keyword">new</span> <span class="title class_">StringDecoder</span>(StandardCharsets.UTF_8))</span><br><span class="line">	<span class="comment">// 消息编码为String</span></span><br><span class="line">	.handler(<span class="keyword">new</span> <span class="title class_">StringEncoder</span>(StandardCharsets.UTF_8))</span><br><span class="line">	<span class="comment">// &#x27;\n&#x27;结尾帧追加</span></span><br><span class="line">	.handler(<span class="keyword">new</span> <span class="title class_">LineEncoder</span>(StandardCharsets.UTF_8));</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="ChannelHandler-—-通道处理器"><a href="#ChannelHandler-—-通道处理器" class="headerlink" title="ChannelHandler — 通道处理器"></a>ChannelHandler — 通道处理器</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">graph BT</span><br><span class="line">ChannelInboundHandler --&gt; ChannelHandler</span><br><span class="line">ChannelHandlerAdapter -.-&gt; ChannelHandler</span><br><span class="line">ChannelOutboundHandler --&gt; ChannelHandler</span><br><span class="line">ChannelInboundHandlerAdapter --&gt; ChannelHandlerAdapter</span><br><span class="line">ChannelInboundHandlerAdapter -.-&gt; ChannelInboundHandler</span><br><span class="line">ChannelOutboundHandlerAdapter --&gt; ChannelHandlerAdapter </span><br><span class="line">ChannelOutboundHandlerAdapter -.-&gt; ChannelOutboundHandler </span><br><span class="line">ChannelDuplexHandler --&gt; ChannelInboundHandlerAdapter</span><br><span class="line">ChannelDuplexHandler -.-&gt; ChannelOutboundHandler</span><br><span class="line">MessageToMessageEncoder[MessageToMessageEncoder&lt;I&gt;] --&gt; ChannelOutboundHandlerAdapter</span><br><span class="line">Base64Encoder --&gt; MessageToMessageEncoder</span><br><span class="line">ByteArrayEncoder --&gt; MessageToMessageEncoder</span><br><span class="line">IdleStateHandler --&gt; ChannelDuplexHandler</span><br><span class="line">ByteToMessageDecoder --&gt; ChannelInboundHandlerAdapter</span><br><span class="line">LineBasedFrameDecoder --&gt; ByteToMessageDecoder</span><br><span class="line">MessageToMessageDecoder --&gt; ChannelInboundHandlerAdapter</span><br><span class="line">StringDecoder --&gt; MessageToMessageDecoder</span><br><span class="line">StringEncoder --&gt; MessageToMessageEncoder</span><br><span class="line">LineEncoder --&gt; MessageToMessageEncoder</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Netty</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Netty</tag>
+        <tag>网络编程</tag>
       </tags>
   </entry>
   <entry>
@@ -354,65 +406,6 @@
         <tag>网络爬虫</tag>
         <tag>JavaScript</tag>
         <tag>Protobuf</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SSM配置WebSocket</title>
-    <url>/2021/09/27/SSM%E9%85%8D%E7%BD%AEWebSocket/</url>
-    <content><![CDATA[<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringWebSocketConfig</span> <span class="keyword">extends</span> <span class="title class_">WebMvcConfigurerAdapter</span> <span class="keyword">implements</span> <span class="title class_">WebSocketConfigurer</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//springwebsocket 4.1.5版本前默认支持跨域访问，之后的版本默认不支持跨域，需要设置.setAllowedOrigins(&quot;*&quot;)</span></span><br><span class="line">		registry.addHandler(webSocketHandler(), <span class="string">&quot;/websocket/socketServer.do&quot;</span>).addInterceptors(<span class="keyword">new</span> <span class="title class_">SpringWebSocketHandlerInterceptor</span>());</span><br><span class="line"></span><br><span class="line">		registry.addHandler(webSocketHandler(), <span class="string">&quot;/sockjs/socketServer.do&quot;</span>).addInterceptors(<span class="keyword">new</span> <span class="title class_">SpringWebSocketHandlerInterceptor</span>()).withSockJS();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="keyword">public</span> SpringWebSocketHandler <span class="title function_">webSocketHandler</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SpringWebSocketHandler</span>();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.web.socket.config.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.WebSocketHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.server.HandshakeHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.server.HandshakeInterceptor;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Provides methods for configuring a WebSocket handler.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Rossen Stoyanchev</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 4.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">WebSocketHandlerRegistration</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Add more handlers that will share the same configuration (interceptors, SockJS</span></span><br><span class="line"><span class="comment">	 * config, etc)</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">addHandler</span><span class="params">(WebSocketHandler handler, String... paths)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure the HandshakeHandler to use.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">setHandshakeHandler</span><span class="params">(HandshakeHandler handshakeHandler)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure interceptors for the handshake request.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">addInterceptors</span><span class="params">(HandshakeInterceptor... interceptors)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure allowed &#123;<span class="doctag">@code</span> Origin&#125; header values. This check is mostly designed for</span></span><br><span class="line"><span class="comment">	 * browser clients. There is nothing preventing other types of client to modify the</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@code</span> Origin&#125; header value.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;When SockJS is enabled and origins are restricted, transport types that do not</span></span><br><span class="line"><span class="comment">	 * allow to check request origin (JSONP and Iframe based transports) are disabled.</span></span><br><span class="line"><span class="comment">	 * As a consequence, IE 6 to 9 are not supported when origins are restricted.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Each provided allowed origin must start by &quot;http://&quot;, &quot;https://&quot; or be &quot;*&quot;</span></span><br><span class="line"><span class="comment">	 * (means that all origins are allowed). By default, only same origin requests are</span></span><br><span class="line"><span class="comment">	 * allowed (empty list).</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 4.1.2</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> &lt;a href=&quot;https://tools.ietf.org/html/rfc6454&quot;&gt;RFC 6454: The Web Origin Concept&lt;/a&gt;</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> &lt;a href=&quot;https://github.com/sockjs/sockjs-client#supported-transports-by-browser-html-served-from-http-or-https&quot;&gt;SockJS supported transports by browser&lt;/a&gt;</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">setAllowedOrigins</span><span class="params">(String... origins)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Enable SockJS fallback options.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	SockJsServiceRegistration <span class="title function_">withSockJS</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>SSM</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>SSM</tag>
-        <tag>Spring</tag>
-        <tag>WebSocket</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>UniApp混合开发app对接安卓设备</title>
-    <url>/2022/10/15/UniApp%E6%B7%B7%E5%90%88%E5%BC%80%E5%8F%91app%E5%AF%B9%E6%8E%A5%E5%AE%89%E5%8D%93%E8%AE%BE%E5%A4%87/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>UniApp</tag>
-        <tag>Android</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>SpringBoot接口加密</title>
-    <url>/2021/09/27/SpringBoot%E6%8E%A5%E5%8F%A3%E5%8A%A0%E5%AF%86/</url>
-    <content><![CDATA[<h4 id="加密模式"><a href="#加密模式" class="headerlink" title="加密模式"></a>加密模式</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">AES/ECB/PKCS5</span><br></pre></td></tr></table></figure>
-<h4 id="JS代码"><a href="#JS代码" class="headerlink" title="JS代码"></a>JS代码</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Constant</span> <span class="keyword">from</span> <span class="string">&#x27;./../constant.js&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">CryptoJS</span> <span class="keyword">from</span> <span class="string">&#x27;./crypto-js.js&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> aseKey = <span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Utf8</span>.<span class="title function_">parse</span>(<span class="title class_">Constant</span>.<span class="property">AES_ENCRYPT_KEY</span>);</span><br><span class="line"><span class="keyword">const</span> aesConfig = &#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="title class_">CryptoJS</span>.<span class="property">mode</span>.<span class="property">ECB</span>,</span><br><span class="line">    <span class="attr">padding</span>: <span class="title class_">CryptoJS</span>.<span class="property">pad</span>.<span class="property">Pkcs7</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    <span class="title function_">encrypt</span>(<span class="params">content</span>) &#123;</span><br><span class="line">        content = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(content);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="title class_">CryptoJS</span>.<span class="property">AES</span></span><br><span class="line">            .<span class="title function_">encrypt</span>(content, aseKey, aesConfig)</span><br><span class="line">            .<span class="title function_">toString</span>();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="title function_">decrypt</span>(<span class="params">content</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> result = <span class="title class_">CryptoJS</span>.<span class="property">AES</span></span><br><span class="line">            .<span class="title function_">decrypt</span>(content, aseKey, aesConfig)</span><br><span class="line">            .<span class="title function_">toString</span>(<span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Utf8</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="资料下载"><a href="#资料下载" class="headerlink" title="资料下载"></a>资料下载</h3><p><a href="https://github.com/dididi1234/crypto/blob/master/CryptoJS.js">crypto-js.js下载</a></p>
-]]></content>
-      <categories>
-        <category>Spring Boot</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Spring Boot</tag>
-        <tag>接口加密</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Web网络安全</title>
-    <url>/2022/10/15/Web%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/</url>
-    <content><![CDATA[<h3 id="php反序列化、XXE、SSRF"><a href="#php反序列化、XXE、SSRF" class="headerlink" title="php反序列化、XXE、SSRF"></a>php反序列化、XXE、SSRF</h3><h3 id="越权漏洞"><a href="#越权漏洞" class="headerlink" title="越权漏洞"></a>越权漏洞</h3><h3 id="不安全的文件下载和上传"><a href="#不安全的文件下载和上传" class="headerlink" title="不安全的文件下载和上传"></a>不安全的文件下载和上传</h3><h3 id="文件包含（File-Inclusion）"><a href="#文件包含（File-Inclusion）" class="headerlink" title="文件包含（File Inclusion）"></a>文件包含（File Inclusion）</h3><h3 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h3><h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><h3 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h3><pre><code>CSRF 是 Cross Site Request Forgery 的 简称，中文名为跨域请求伪造
-在CSRF的攻击场景中，攻击者会伪造一个请求（一般是一个链接）
-然后欺骗目标用户进行点击，用户一旦点击了这个请求，这个攻击也就完成了
-所以CSRF攻击也被称为“one click”攻击
-</code></pre>
-<h3 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h3>]]></content>
-      <categories>
-        <category>网络安全</category>
-      </categories>
-      <tags>
-        <tag>网络安全</tag>
       </tags>
   </entry>
   <entry>
@@ -446,30 +439,6 @@ list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存�
         <tag>Redis</tag>
         <tag>NoSQL</tag>
         <tag>C/C++</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Docker安装RabbitMQ</title>
-    <url>/2021/10/19/Docker%E5%AE%89%E8%A3%85RabbitMQ/</url>
-    <content><![CDATA[<h2 id="安装-rabbitmq-指定配置映射"><a href="#安装-rabbitmq-指定配置映射" class="headerlink" title="安装 rabbitmq 指定配置映射"></a>安装 rabbitmq 指定配置映射</h2><h3 id="相关资料查阅"><a href="#相关资料查阅" class="headerlink" title="相关资料查阅"></a>相关资料查阅</h3><ul>
-<li>配置文件目录: <a href="https://hub.docker.com/_/rabbitmq?tab=description">(英文) Docker Hub</a></li>
-<li>rabbitmq 环境变量: <a href="https://www.rabbitmq.com/configure.html#supported-environment-variables">(英文) 官方文档</a></li>
-<li>rabbitmqctl 指令文档: <a href="https://www.rabbitmq.com/rabbitmqctl.8.html">(英文) 官方文档</a></li>
-</ul>
-<h2 id="安装并启动rabbitmq"><a href="#安装并启动rabbitmq" class="headerlink" title="安装并启动rabbitmq"></a>安装并启动rabbitmq</h2><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">拉取容器</span></span><br><span class="line">docker pull rabbitmq:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">运行容器</span></span><br><span class="line">docker run -d</span><br><span class="line">--name rabbitmq-5672</span><br><span class="line">-p 5672:5672</span><br><span class="line">-p 15672:15672</span><br><span class="line">-v /data/rabbitmq-5672/conf:/etc/rabbitmq</span><br><span class="line">-v /data/rabbitmq-5672/data:/var/lib/rabbitmq</span><br><span class="line">-v /data/rabbitmq-5672/logs:/var/log/rabbitmq</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=guest</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=guest</span><br><span class="line">rabbitmq:latest</span><br><span class="line"><span class="meta prompt_"></span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/etc/rabbitmq: 		配置文件目录, 包含有rabbitmq.config</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/var/lib/rabbitmq: 	数据文件目录</span></span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">/var/log/rabbitmq: 	日志目录</span></span><br></pre></td></tr></table></figure>
-<ul>
-<li><h3 id="开启web管理模块"><a href="#开启web管理模块" class="headerlink" title="开启web管理模块"></a>开启web管理模块</h3><figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">先使用 docker <span class="built_in">exec</span> 进入容器</span></span><br><span class="line">docker exec -it rabbitmq-5672 bash</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">使用rabbitmq-plugins指令启动web管理模块</span></span><br><span class="line">rabbitmq-plugins enable rabbitmq_management</span><br></pre></td></tr></table></figure></li>
-</ul>
-<h2 id="加入-SpringBoot-项目进行测试"><a href="#加入-SpringBoot-项目进行测试" class="headerlink" title="加入 SpringBoot 项目进行测试"></a>加入 SpringBoot 项目进行测试</h2><h2 id="相关问题处理"><a href="#相关问题处理" class="headerlink" title="相关问题处理"></a>相关问题处理</h2><ul>
-<li><h3 id="User-can-only-log-in-via-localhost"><a href="#User-can-only-log-in-via-localhost" class="headerlink" title="User can only log in via localhost"></a>User can only log in via localhost</h3>据了解是RabbitMQ 3.3.0更新后guest账号不再支持在非本地外的环境登录, 建议新增账号进行登录.<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">增加root用户</span></span><br><span class="line">rabbitmqctl add_user root 123456</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">赋予管理员权限</span></span><br><span class="line">rabbitmqctl set_user_tags root administrator</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">赋予Virtual host权限</span></span><br><span class="line">rabbitmqctl set_permissions -p / root &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;</span><br></pre></td></tr></table></figure></li>
-</ul>
-]]></content>
-      <categories>
-        <category>容器</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-        <tag>RabbitMQ</tag>
       </tags>
   </entry>
   <entry>
@@ -611,130 +580,62 @@ list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存�
       </tags>
   </entry>
   <entry>
-    <title>微信公众号开发</title>
-    <url>/2021/10/12/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E5%BC%80%E5%8F%91/</url>
-    <content><![CDATA[<p><a href="https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login">微信公众平台接口测试</a></p>
+    <title>SSM配置WebSocket</title>
+    <url>/2021/09/27/SSM%E9%85%8D%E7%BD%AEWebSocket/</url>
+    <content><![CDATA[<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableWebMvc</span></span><br><span class="line"><span class="meta">@EnableWebSocket</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">SpringWebSocketConfig</span> <span class="keyword">extends</span> <span class="title class_">WebMvcConfigurerAdapter</span> <span class="keyword">implements</span> <span class="title class_">WebSocketConfigurer</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerWebSocketHandlers</span><span class="params">(WebSocketHandlerRegistry registry)</span> &#123;</span><br><span class="line"></span><br><span class="line">		<span class="comment">//springwebsocket 4.1.5版本前默认支持跨域访问，之后的版本默认不支持跨域，需要设置.setAllowedOrigins(&quot;*&quot;)</span></span><br><span class="line">		registry.addHandler(webSocketHandler(), <span class="string">&quot;/websocket/socketServer.do&quot;</span>).addInterceptors(<span class="keyword">new</span> <span class="title class_">SpringWebSocketHandlerInterceptor</span>());</span><br><span class="line"></span><br><span class="line">		registry.addHandler(webSocketHandler(), <span class="string">&quot;/sockjs/socketServer.do&quot;</span>).addInterceptors(<span class="keyword">new</span> <span class="title class_">SpringWebSocketHandlerInterceptor</span>()).withSockJS();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Bean</span></span><br><span class="line">	<span class="keyword">public</span> SpringWebSocketHandler <span class="title function_">webSocketHandler</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">SpringWebSocketHandler</span>();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> org.springframework.web.socket.config.annotation;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.WebSocketHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.server.HandshakeHandler;</span><br><span class="line"><span class="keyword">import</span> org.springframework.web.socket.server.HandshakeInterceptor;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Provides methods for configuring a WebSocket handler.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> Rossen Stoyanchev</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@since</span> 4.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title class_">WebSocketHandlerRegistration</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Add more handlers that will share the same configuration (interceptors, SockJS</span></span><br><span class="line"><span class="comment">	 * config, etc)</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">addHandler</span><span class="params">(WebSocketHandler handler, String... paths)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure the HandshakeHandler to use.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">setHandshakeHandler</span><span class="params">(HandshakeHandler handshakeHandler)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure interceptors for the handshake request.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">addInterceptors</span><span class="params">(HandshakeInterceptor... interceptors)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Configure allowed &#123;<span class="doctag">@code</span> Origin&#125; header values. This check is mostly designed for</span></span><br><span class="line"><span class="comment">	 * browser clients. There is nothing preventing other types of client to modify the</span></span><br><span class="line"><span class="comment">	 * &#123;<span class="doctag">@code</span> Origin&#125; header value.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;When SockJS is enabled and origins are restricted, transport types that do not</span></span><br><span class="line"><span class="comment">	 * allow to check request origin (JSONP and Iframe based transports) are disabled.</span></span><br><span class="line"><span class="comment">	 * As a consequence, IE 6 to 9 are not supported when origins are restricted.</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * &lt;p&gt;Each provided allowed origin must start by &quot;http://&quot;, &quot;https://&quot; or be &quot;*&quot;</span></span><br><span class="line"><span class="comment">	 * (means that all origins are allowed). By default, only same origin requests are</span></span><br><span class="line"><span class="comment">	 * allowed (empty list).</span></span><br><span class="line"><span class="comment">	 *</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@since</span> 4.1.2</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> &lt;a href=&quot;https://tools.ietf.org/html/rfc6454&quot;&gt;RFC 6454: The Web Origin Concept&lt;/a&gt;</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@see</span> &lt;a href=&quot;https://github.com/sockjs/sockjs-client#supported-transports-by-browser-html-served-from-http-or-https&quot;&gt;SockJS supported transports by browser&lt;/a&gt;</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	WebSocketHandlerRegistration <span class="title function_">setAllowedOrigins</span><span class="params">(String... origins)</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * Enable SockJS fallback options.</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	SockJsServiceRegistration <span class="title function_">withSockJS</span><span class="params">()</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>SSM</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>SSM</tag>
+        <tag>Spring</tag>
+        <tag>WebSocket</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SpringBoot接口加密</title>
+    <url>/2021/09/27/SpringBoot%E6%8E%A5%E5%8F%A3%E5%8A%A0%E5%AF%86/</url>
+    <content><![CDATA[<h4 id="加密模式"><a href="#加密模式" class="headerlink" title="加密模式"></a>加密模式</h4><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">AES/ECB/PKCS5</span><br></pre></td></tr></table></figure>
+<h4 id="JS代码"><a href="#JS代码" class="headerlink" title="JS代码"></a>JS代码</h4><figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="title class_">Constant</span> <span class="keyword">from</span> <span class="string">&#x27;./../constant.js&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="title class_">CryptoJS</span> <span class="keyword">from</span> <span class="string">&#x27;./crypto-js.js&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> aseKey = <span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Utf8</span>.<span class="title function_">parse</span>(<span class="title class_">Constant</span>.<span class="property">AES_ENCRYPT_KEY</span>);</span><br><span class="line"><span class="keyword">const</span> aesConfig = &#123;</span><br><span class="line">    <span class="attr">mode</span>: <span class="title class_">CryptoJS</span>.<span class="property">mode</span>.<span class="property">ECB</span>,</span><br><span class="line">    <span class="attr">padding</span>: <span class="title class_">CryptoJS</span>.<span class="property">pad</span>.<span class="property">Pkcs7</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">    <span class="title function_">encrypt</span>(<span class="params">content</span>) &#123;</span><br><span class="line">        content = <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(content);</span><br><span class="line">        <span class="keyword">let</span> result = <span class="title class_">CryptoJS</span>.<span class="property">AES</span></span><br><span class="line">            .<span class="title function_">encrypt</span>(content, aseKey, aesConfig)</span><br><span class="line">            .<span class="title function_">toString</span>();</span><br><span class="line">        <span class="keyword">return</span> result;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="title function_">decrypt</span>(<span class="params">content</span>) &#123;</span><br><span class="line">        <span class="keyword">let</span> result = <span class="title class_">CryptoJS</span>.<span class="property">AES</span></span><br><span class="line">            .<span class="title function_">decrypt</span>(content, aseKey, aesConfig)</span><br><span class="line">            .<span class="title function_">toString</span>(<span class="title class_">CryptoJS</span>.<span class="property">enc</span>.<span class="property">Utf8</span>);</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">JSON</span>.<span class="title function_">parse</span>(result);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="资料下载"><a href="#资料下载" class="headerlink" title="资料下载"></a>资料下载</h3><p><a href="https://github.com/dididi1234/crypto/blob/master/CryptoJS.js">crypto-js.js下载</a></p>
 ]]></content>
       <categories>
-        <category>微信公众号</category>
+        <category>Spring Boot</category>
       </categories>
       <tags>
         <tag>Java</tag>
-        <tag>微信公众号</tag>
+        <tag>Spring Boot</tag>
+        <tag>接口加密</tag>
       </tags>
   </entry>
   <entry>
-    <title>redis-cli各种命令使用示例</title>
-    <url>/2022/10/15/redis-cli%E5%90%84%E7%A7%8D%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</url>
-    <content><![CDATA[<h1 id="redis-cli各种命令使用示例"><a href="#redis-cli各种命令使用示例" class="headerlink" title="redis-cli各种命令使用示例"></a>redis-cli各种命令使用示例</h1><p>Redis版本：<code>4.0</code><br>Github：<a href="https://github.com/redis/redis/tree/4.0">https://github.com/redis/redis/tree/4.0</a><br>Redis官方文档（纯英文）：<a href="https://redis.io/docs&gt;">https://redis.io/docs&gt;</a><br>Redis官方指令查询（纯英文）：<a href="https://redis.io/commands">https://redis.io/commands</a></p>
-<h4 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h4><h5 id="get"><a href="#get" class="headerlink" title="get"></a>get</h5><blockquote>
-<p>get <key></p>
-<p>获取值。<br>当key不存在时返回<strong>nil</strong>。</p>
-</blockquote>
-<h5 id="set"><a href="#set" class="headerlink" title="set"></a>set</h5><blockquote>
-<p> set <key> <value></p>
-<p>设置值。</p>
-</blockquote>
-<h5 id="getset"><a href="#getset" class="headerlink" title="getset"></a>getset</h5><blockquote>
-<p>getset <key> <value></p>
-<p>设置key的新值，返回key的旧值。<br>当key不存在时，返回<strong>nil</strong>。</p>
-</blockquote>
-<h5 id="setex"><a href="#setex" class="headerlink" title="setex"></a>setex</h5><blockquote>
-<p>setex <key> <seconds> <value></p>
-<p>设置值，并且修改过期时间为 seconds 秒。</p>
-</blockquote>
-<h5 id="setnx"><a href="#setnx" class="headerlink" title="setnx"></a>setnx</h5><blockquote>
-<p>setnx <key> <value></p>
-<p>当key不存在时，为key设置值。</p>
-</blockquote>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; exists name             # key不存在</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx name khazan       # 设置值成功</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line">&quot;khazan&quot;</span><br><span class="line">127.0.0.1:6379&gt; setnx name lbw          # 覆盖值失败</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line">&quot;khazan&quot;</span><br></pre></td></tr></table></figure>
-
-
-
-<h4 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h4><h4 id="管理命令"><a href="#管理命令" class="headerlink" title="管理命令"></a>管理命令</h4><h5 id="module"><a href="#module" class="headerlink" title="module"></a>module</h5><blockquote>
-<p>模块管理命令</p>
-</blockquote>
-<ol>
-<li><p>load</p>
-<blockquote>
-<p>module load <path> [args…]</p>
-<p>加载模块</p>
-</blockquote>
-</li>
-<li><p>unload</p>
-<blockquote>
-<p>module unload</p>
-<p>卸载模块</p>
-</blockquote>
-</li>
-<li><p>list</p>
-<blockquote>
-<p>module list</p>
-<p>查看已加载的模块</p>
-</blockquote>
-</li>
-</ol>
-<h5 id="psetex"><a href="#psetex" class="headerlink" title="psetex"></a>psetex</h5><h5 id="append"><a href="#append" class="headerlink" title="append"></a>append</h5><h5 id="strlen"><a href="#strlen" class="headerlink" title="strlen"></a>strlen</h5><h5 id="del"><a href="#del" class="headerlink" title="del"></a>del</h5><h5 id="unlink"><a href="#unlink" class="headerlink" title="unlink"></a>unlink</h5><h5 id="exists"><a href="#exists" class="headerlink" title="exists"></a>exists</h5><h5 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h5><h5 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h5><h5 id="bitfield"><a href="#bitfield" class="headerlink" title="bitfield"></a>bitfield</h5><h5 id="setrange"><a href="#setrange" class="headerlink" title="setrange"></a>setrange</h5><h5 id="getrange"><a href="#getrange" class="headerlink" title="getrange"></a>getrange</h5><h5 id="substr"><a href="#substr" class="headerlink" title="substr"></a>substr</h5><h5 id="incr"><a href="#incr" class="headerlink" title="incr"></a>incr</h5><h5 id="decr"><a href="#decr" class="headerlink" title="decr"></a>decr</h5><h5 id="mget"><a href="#mget" class="headerlink" title="mget"></a>mget</h5><h5 id="rpush"><a href="#rpush" class="headerlink" title="rpush"></a>rpush</h5><h5 id="lpush"><a href="#lpush" class="headerlink" title="lpush"></a>lpush</h5><h5 id="rpushx"><a href="#rpushx" class="headerlink" title="rpushx"></a>rpushx</h5><h5 id="lpushx"><a href="#lpushx" class="headerlink" title="lpushx"></a>lpushx</h5><h5 id="linsert"><a href="#linsert" class="headerlink" title="linsert"></a>linsert</h5><h5 id="rpop"><a href="#rpop" class="headerlink" title="rpop"></a>rpop</h5><h5 id="lpop"><a href="#lpop" class="headerlink" title="lpop"></a>lpop</h5><h5 id="brpop"><a href="#brpop" class="headerlink" title="brpop"></a>brpop</h5><h5 id="brpoplpush"><a href="#brpoplpush" class="headerlink" title="brpoplpush"></a>brpoplpush</h5><h5 id="blpop"><a href="#blpop" class="headerlink" title="blpop"></a>blpop</h5><h5 id="llen"><a href="#llen" class="headerlink" title="llen"></a>llen</h5><h5 id="lindex"><a href="#lindex" class="headerlink" title="lindex"></a>lindex</h5><h5 id="lset"><a href="#lset" class="headerlink" title="lset"></a>lset</h5><h5 id="lrange"><a href="#lrange" class="headerlink" title="lrange"></a>lrange</h5><h5 id="ltrim"><a href="#ltrim" class="headerlink" title="ltrim"></a>ltrim</h5><h5 id="lrem"><a href="#lrem" class="headerlink" title="lrem"></a>lrem</h5><h5 id="rpoplpush"><a href="#rpoplpush" class="headerlink" title="rpoplpush"></a>rpoplpush</h5><h5 id="sadd"><a href="#sadd" class="headerlink" title="sadd"></a>sadd</h5><h5 id="srem"><a href="#srem" class="headerlink" title="srem"></a>srem</h5><h5 id="smove"><a href="#smove" class="headerlink" title="smove"></a>smove</h5><h5 id="sismember"><a href="#sismember" class="headerlink" title="sismember"></a>sismember</h5><h5 id="scard"><a href="#scard" class="headerlink" title="scard"></a>scard</h5><h5 id="spop"><a href="#spop" class="headerlink" title="spop"></a>spop</h5><h5 id="srandmember"><a href="#srandmember" class="headerlink" title="srandmember"></a>srandmember</h5><h5 id="sinter"><a href="#sinter" class="headerlink" title="sinter"></a>sinter</h5><h5 id="sinterstore"><a href="#sinterstore" class="headerlink" title="sinterstore"></a>sinterstore</h5><h5 id="sunion"><a href="#sunion" class="headerlink" title="sunion"></a>sunion</h5><h5 id="sunionstore"><a href="#sunionstore" class="headerlink" title="sunionstore"></a>sunionstore</h5><h5 id="sdiff"><a href="#sdiff" class="headerlink" title="sdiff"></a>sdiff</h5><h5 id="sdiffstore"><a href="#sdiffstore" class="headerlink" title="sdiffstore"></a>sdiffstore</h5><h5 id="smembers"><a href="#smembers" class="headerlink" title="smembers"></a>smembers</h5><h5 id="sscan"><a href="#sscan" class="headerlink" title="sscan"></a>sscan</h5><h5 id="zadd"><a href="#zadd" class="headerlink" title="zadd"></a>zadd</h5><h5 id="zincrby"><a href="#zincrby" class="headerlink" title="zincrby"></a>zincrby</h5><h5 id="zrem"><a href="#zrem" class="headerlink" title="zrem"></a>zrem</h5><h5 id="zremrangebyscore"><a href="#zremrangebyscore" class="headerlink" title="zremrangebyscore"></a>zremrangebyscore</h5><h5 id="zremrangebyrank"><a href="#zremrangebyrank" class="headerlink" title="zremrangebyrank"></a>zremrangebyrank</h5><h5 id="zremrangebylex"><a href="#zremrangebylex" class="headerlink" title="zremrangebylex"></a>zremrangebylex</h5><h5 id="zunionstore"><a href="#zunionstore" class="headerlink" title="zunionstore"></a>zunionstore</h5><h5 id="zinterstore"><a href="#zinterstore" class="headerlink" title="zinterstore"></a>zinterstore</h5><h5 id="zrange"><a href="#zrange" class="headerlink" title="zrange"></a>zrange</h5><h5 id="zrangebyscore"><a href="#zrangebyscore" class="headerlink" title="zrangebyscore"></a>zrangebyscore</h5><h5 id="zrevrangebyscore"><a href="#zrevrangebyscore" class="headerlink" title="zrevrangebyscore"></a>zrevrangebyscore</h5><h5 id="zrangebylex"><a href="#zrangebylex" class="headerlink" title="zrangebylex"></a>zrangebylex</h5><h5 id="zrevrangebylex"><a href="#zrevrangebylex" class="headerlink" title="zrevrangebylex"></a>zrevrangebylex</h5><h5 id="zcount"><a href="#zcount" class="headerlink" title="zcount"></a>zcount</h5><h5 id="zlexcount"><a href="#zlexcount" class="headerlink" title="zlexcount"></a>zlexcount</h5><h5 id="zrevrange"><a href="#zrevrange" class="headerlink" title="zrevrange"></a>zrevrange</h5><h5 id="zcard"><a href="#zcard" class="headerlink" title="zcard"></a>zcard</h5><h5 id="zscore"><a href="#zscore" class="headerlink" title="zscore"></a>zscore</h5><h5 id="zrank"><a href="#zrank" class="headerlink" title="zrank"></a>zrank</h5><h5 id="zrevrank"><a href="#zrevrank" class="headerlink" title="zrevrank"></a>zrevrank</h5><h5 id="zscan"><a href="#zscan" class="headerlink" title="zscan"></a>zscan</h5><h5 id="hset"><a href="#hset" class="headerlink" title="hset"></a>hset</h5><h5 id="hsetnx"><a href="#hsetnx" class="headerlink" title="hsetnx"></a>hsetnx</h5><h5 id="hget"><a href="#hget" class="headerlink" title="hget"></a>hget</h5><h5 id="hmset"><a href="#hmset" class="headerlink" title="hmset"></a>hmset</h5><h5 id="hmget"><a href="#hmget" class="headerlink" title="hmget"></a>hmget</h5><h5 id="hincrby"><a href="#hincrby" class="headerlink" title="hincrby"></a>hincrby</h5><h5 id="hincrbyfloat"><a href="#hincrbyfloat" class="headerlink" title="hincrbyfloat"></a>hincrbyfloat</h5><h5 id="hdel"><a href="#hdel" class="headerlink" title="hdel"></a>hdel</h5><h5 id="hlen"><a href="#hlen" class="headerlink" title="hlen"></a>hlen</h5><h5 id="hstrlen"><a href="#hstrlen" class="headerlink" title="hstrlen"></a>hstrlen</h5><h5 id="hkeys"><a href="#hkeys" class="headerlink" title="hkeys"></a>hkeys</h5><h5 id="hvals"><a href="#hvals" class="headerlink" title="hvals"></a>hvals</h5><h5 id="hgetall"><a href="#hgetall" class="headerlink" title="hgetall"></a>hgetall</h5><h5 id="hexists"><a href="#hexists" class="headerlink" title="hexists"></a>hexists</h5><h5 id="hscan"><a href="#hscan" class="headerlink" title="hscan"></a>hscan</h5><h5 id="incrby"><a href="#incrby" class="headerlink" title="incrby"></a>incrby</h5><h5 id="decrby"><a href="#decrby" class="headerlink" title="decrby"></a>decrby</h5><h5 id="incrbyfloat"><a href="#incrbyfloat" class="headerlink" title="incrbyfloat"></a>incrbyfloat</h5><h5 id="mset"><a href="#mset" class="headerlink" title="mset"></a>mset</h5><h5 id="msetnx"><a href="#msetnx" class="headerlink" title="msetnx"></a>msetnx</h5><h5 id="randomkey"><a href="#randomkey" class="headerlink" title="randomkey"></a>randomkey</h5><h5 id="select"><a href="#select" class="headerlink" title="select"></a>select</h5><h5 id="swapdb"><a href="#swapdb" class="headerlink" title="swapdb"></a>swapdb</h5><h5 id="move"><a href="#move" class="headerlink" title="move"></a>move</h5><h5 id="rename"><a href="#rename" class="headerlink" title="rename"></a>rename</h5><h5 id="renamenx"><a href="#renamenx" class="headerlink" title="renamenx"></a>renamenx</h5><h5 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h5><h5 id="expireat"><a href="#expireat" class="headerlink" title="expireat"></a>expireat</h5><h5 id="pexpire"><a href="#pexpire" class="headerlink" title="pexpire"></a>pexpire</h5><h5 id="pexpireat"><a href="#pexpireat" class="headerlink" title="pexpireat"></a>pexpireat</h5><h5 id="keys"><a href="#keys" class="headerlink" title="keys"></a>keys</h5><h5 id="scan"><a href="#scan" class="headerlink" title="scan"></a>scan</h5><h5 id="dbsize"><a href="#dbsize" class="headerlink" title="dbsize"></a>dbsize</h5><h5 id="auth"><a href="#auth" class="headerlink" title="auth"></a>auth</h5><h5 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h5><h5 id="echo"><a href="#echo" class="headerlink" title="echo"></a>echo</h5><h5 id="save"><a href="#save" class="headerlink" title="save"></a>save</h5><h5 id="bgsave"><a href="#bgsave" class="headerlink" title="bgsave"></a>bgsave</h5><h5 id="bgrewriteaof"><a href="#bgrewriteaof" class="headerlink" title="bgrewriteaof"></a>bgrewriteaof</h5><h5 id="shutdown"><a href="#shutdown" class="headerlink" title="shutdown"></a>shutdown</h5><h5 id="lastsave"><a href="#lastsave" class="headerlink" title="lastsave"></a>lastsave</h5><h5 id="type"><a href="#type" class="headerlink" title="type"></a>type</h5><h5 id="multi"><a href="#multi" class="headerlink" title="multi"></a>multi</h5><h5 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h5><h5 id="discard"><a href="#discard" class="headerlink" title="discard"></a>discard</h5><h5 id="sync"><a href="#sync" class="headerlink" title="sync"></a>sync</h5><h5 id="psync"><a href="#psync" class="headerlink" title="psync"></a>psync</h5><h5 id="replconf"><a href="#replconf" class="headerlink" title="replconf"></a>replconf</h5><h5 id="flushdb"><a href="#flushdb" class="headerlink" title="flushdb"></a>flushdb</h5><h5 id="flushall"><a href="#flushall" class="headerlink" title="flushall"></a>flushall</h5><h5 id="sort"><a href="#sort" class="headerlink" title="sort"></a>sort</h5><h5 id="info"><a href="#info" class="headerlink" title="info"></a>info</h5><h5 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h5><h5 id="ttl"><a href="#ttl" class="headerlink" title="ttl"></a>ttl</h5><h5 id="touch"><a href="#touch" class="headerlink" title="touch"></a>touch</h5><h5 id="pttl"><a href="#pttl" class="headerlink" title="pttl"></a>pttl</h5><h5 id="persist"><a href="#persist" class="headerlink" title="persist"></a>persist</h5><h5 id="slaveof"><a href="#slaveof" class="headerlink" title="slaveof"></a>slaveof</h5><h5 id="role"><a href="#role" class="headerlink" title="role"></a>role</h5><h5 id="debug"><a href="#debug" class="headerlink" title="debug"></a>debug</h5><h5 id="config"><a href="#config" class="headerlink" title="config"></a>config</h5><h5 id="subscribe"><a href="#subscribe" class="headerlink" title="subscribe"></a>subscribe</h5><h5 id="unsubscribe"><a href="#unsubscribe" class="headerlink" title="unsubscribe"></a>unsubscribe</h5><h5 id="psubscribe"><a href="#psubscribe" class="headerlink" title="psubscribe"></a>psubscribe</h5><h5 id="punsubscribe"><a href="#punsubscribe" class="headerlink" title="punsubscribe"></a>punsubscribe</h5><h5 id="publish"><a href="#publish" class="headerlink" title="publish"></a>publish</h5><h5 id="pubsub"><a href="#pubsub" class="headerlink" title="pubsub"></a>pubsub</h5><h5 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h5><h5 id="unwatch"><a href="#unwatch" class="headerlink" title="unwatch"></a>unwatch</h5><h5 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster</h5><h5 id="restore"><a href="#restore" class="headerlink" title="restore"></a>restore</h5><h5 id="restore-1"><a href="#restore-1" class="headerlink" title="restore"></a>restore</h5><h5 id="migrate"><a href="#migrate" class="headerlink" title="migrate"></a>migrate</h5><h5 id="asking"><a href="#asking" class="headerlink" title="asking"></a>asking</h5><h5 id="readonly"><a href="#readonly" class="headerlink" title="readonly"></a>readonly</h5><h5 id="readwrite"><a href="#readwrite" class="headerlink" title="readwrite"></a>readwrite</h5><h5 id="dump"><a href="#dump" class="headerlink" title="dump"></a>dump</h5><h5 id="object"><a href="#object" class="headerlink" title="object"></a>object</h5><blockquote>
-<p>object &lt;refcount|encoding|idletime|freq&gt; <key></p>
-<p>object命令可以检查对象的内部结构</p>
-</blockquote>
-<ol>
-<li>refcount – 返回key的值被引用的次数。</li>
-<li>encoding – 返回key的值编码类型。</li>
-<li>idletime – 返回key的值的空闲时间，即最后一次访问以来经过的秒数。</li>
-<li>freq – 返回访问频率。</li>
-</ol>
-<h5 id="memory"><a href="#memory" class="headerlink" title="memory"></a>memory</h5><h5 id="client"><a href="#client" class="headerlink" title="client"></a>client</h5><h5 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h5><h5 id="evalsha"><a href="#evalsha" class="headerlink" title="evalsha"></a>evalsha</h5><h5 id="slowlog"><a href="#slowlog" class="headerlink" title="slowlog"></a>slowlog</h5><h5 id="script"><a href="#script" class="headerlink" title="script"></a>script</h5><h5 id="time"><a href="#time" class="headerlink" title="time"></a>time</h5><h5 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h5><h5 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h5><h5 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h5><h5 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h5><h5 id="command"><a href="#command" class="headerlink" title="command"></a>command</h5><h5 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h5><h5 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h5><h5 id="georadius-ro"><a href="#georadius-ro" class="headerlink" title="georadius_ro"></a>georadius_ro</h5><h5 id="georadiusbymember"><a href="#georadiusbymember" class="headerlink" title="georadiusbymember"></a>georadiusbymember</h5><h5 id="georadiusbymember-ro"><a href="#georadiusbymember-ro" class="headerlink" title="georadiusbymember_ro"></a>georadiusbymember_ro</h5><h5 id="geohash"><a href="#geohash" class="headerlink" title="geohash"></a>geohash</h5><h5 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h5><h5 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h5><h5 id="pfselftest"><a href="#pfselftest" class="headerlink" title="pfselftest"></a>pfselftest</h5><h5 id="pfadd"><a href="#pfadd" class="headerlink" title="pfadd"></a>pfadd</h5><h5 id="pfcount"><a href="#pfcount" class="headerlink" title="pfcount"></a>pfcount</h5><h5 id="pfmerge"><a href="#pfmerge" class="headerlink" title="pfmerge"></a>pfmerge</h5><h5 id="pfdebug"><a href="#pfdebug" class="headerlink" title="pfdebug"></a>pfdebug</h5><h5 id="post"><a href="#post" class="headerlink" title="post"></a>post</h5><h5 id="host"><a href="#host" class="headerlink" title="host"></a>host</h5><h5 id="latency"><a href="#latency" class="headerlink" title="latency"></a>latency</h5>]]></content>
-      <categories>
-        <category>Redis</category>
-      </categories>
+    <title>UniApp混合开发app对接安卓设备</title>
+    <url>/2022/10/15/UniApp%E6%B7%B7%E5%90%88%E5%BC%80%E5%8F%91app%E5%AF%B9%E6%8E%A5%E5%AE%89%E5%8D%93%E8%AE%BE%E5%A4%87/</url>
+    <content><![CDATA[]]></content>
       <tags>
-        <tag>Redis</tag>
-        <tag>NoSQL</tag>
-        <tag>redis-cli</tag>
+        <tag>UniApp</tag>
+        <tag>Android</tag>
       </tags>
   </entry>
   <entry>
-    <title>基于JVMTI实现Class文件加密</title>
-    <url>/2021/07/06/%E5%9F%BA%E4%BA%8EJVMTI%E5%AE%9E%E7%8E%B0Class%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/</url>
-    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><h3 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h3><ul>
-<li>Visual Studio 2022</li>
-</ul>
-<h1 id="Class文件结构分析"><a href="#Class文件结构分析" class="headerlink" title="Class文件结构分析"></a>Class文件结构分析</h1><h1 id="实现加密方式"><a href="#实现加密方式" class="headerlink" title="实现加密方式"></a>实现加密方式</h1><h1 id="实现解密功能"><a href="#实现解密功能" class="headerlink" title="实现解密功能"></a>实现解密功能</h1><h1 id="使用’-agentpath’"><a href="#使用’-agentpath’" class="headerlink" title="使用’-agentpath’"></a>使用’-agentpath’</h1>]]></content>
+    <title>Web网络安全</title>
+    <url>/2022/10/15/Web%E7%BD%91%E7%BB%9C%E5%AE%89%E5%85%A8/</url>
+    <content><![CDATA[<h3 id="php反序列化、XXE、SSRF"><a href="#php反序列化、XXE、SSRF" class="headerlink" title="php反序列化、XXE、SSRF"></a>php反序列化、XXE、SSRF</h3><h3 id="越权漏洞"><a href="#越权漏洞" class="headerlink" title="越权漏洞"></a>越权漏洞</h3><h3 id="不安全的文件下载和上传"><a href="#不安全的文件下载和上传" class="headerlink" title="不安全的文件下载和上传"></a>不安全的文件下载和上传</h3><h3 id="文件包含（File-Inclusion）"><a href="#文件包含（File-Inclusion）" class="headerlink" title="文件包含（File Inclusion）"></a>文件包含（File Inclusion）</h3><h3 id="RCE"><a href="#RCE" class="headerlink" title="RCE"></a>RCE</h3><h3 id="SQL注入"><a href="#SQL注入" class="headerlink" title="SQL注入"></a>SQL注入</h3><h3 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h3><pre><code>CSRF 是 Cross Site Request Forgery 的 简称，中文名为跨域请求伪造
+在CSRF的攻击场景中，攻击者会伪造一个请求（一般是一个链接）
+然后欺骗目标用户进行点击，用户一旦点击了这个请求，这个攻击也就完成了
+所以CSRF攻击也被称为“one click”攻击
+</code></pre>
+<h3 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h3>]]></content>
       <categories>
-        <category>Java</category>
+        <category>网络安全</category>
       </categories>
       <tags>
-        <tag>Java</tag>
-        <tag>JVMTI</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>服务器Https配置</title>
-    <url>/2021/02/04/%E6%9C%8D%E5%8A%A1%E5%99%A8Https%E9%85%8D%E7%BD%AE/</url>
-    <content><![CDATA[<p><a href="https://help.aliyun.com/document_detail/98728.html?spm=5176.14113079.0.0.30f056a7iUZmzT">配置方法</a></p>
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">vim /usr/local/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">       listen  80;</span><br><span class="line">       server_name 127.0.0.1;</span><br><span class="line"></span><br><span class="line">       # listen 443 ssl;</span><br><span class="line">       #配置HTTPS的默认访问端口为443</span><br><span class="line">       #如果未在此处配置HTTPS的默认访问端口，可能会造成Nginx无法启动</span><br><span class="line">       #如果您使用Nginx 1.15.0及以上版本，请使用listen 443 ssl代替listen 443和ssl on。</span><br><span class="line">       # server_name dlibs.net;</span><br><span class="line">       # ssl_certificate cert/4525413_dlibs.net.pem;</span><br><span class="line">       # ssl_certificate_key cert/4525413_dlibs.net.key;</span><br><span class="line">       # ssl_session_timeout 5m;</span><br><span class="line">       # ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; #表示使用的加密套件的类型</span><br><span class="line">       # ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #表示使用的TLS协议的类型</span><br><span class="line">       # ssl_prefer_server_ciphers on;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">openssl version -a</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">OpenSSL <span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u  <span class="number">20</span> Dec <span class="number">2019</span></span><br><span class="line">built on: reproducible build, <span class="built_in">date</span> unspecified</span><br><span class="line"><span class="function">platform: <span class="title">linux</span>-<span class="title">x86_64</span></span></span><br><span class="line"><span class="function"><span class="title">options</span>:  <span class="title">bn</span>(64,64) <span class="title">rc4</span>(16<span class="title">x</span>,<span class="title">int</span>) <span class="title">des</span>(<span class="title">idx</span>,<span class="title">cisc</span>,16,<span class="title">int</span>) <span class="title">idea</span>(<span class="title">int</span>) <span class="title">blowfish</span>(<span class="title">idx</span>) </span></span><br><span class="line"><span class="function"><span class="title">compiler</span>: <span class="title">gcc</span> -<span class="title">I</span>. -<span class="title">I</span>.. -<span class="title">I</span>../<span class="title">include</span>  -<span class="title">DOPENSSL_THREADS</span> -<span class="title">D_REENTRANT</span> -<span class="title">DDSO_DLFCN</span> -<span class="title">DHAVE_DLFCN_H</span> -<span class="title">Wa</span>,--<span class="title">noexecstack</span> -<span class="title">m64</span> -<span class="title">DL_ENDIAN</span> -<span class="title">O3</span> -<span class="title">Wall</span> -<span class="title">DOPENSSL_IA32_SSE2</span> -<span class="title">DOPENSSL_BN_ASM_MONT</span> -<span class="title">DOPENSSL_BN_ASM_MONT5</span> -<span class="title">DOPENSSL_BN_ASM_GF2m</span> -<span class="title">DRC4_ASM</span> -<span class="title">DSHA1_ASM</span> -<span class="title">DSHA256_ASM</span> -<span class="title">DSHA512_ASM</span> -<span class="title">DMD5_ASM</span> -<span class="title">DAES_ASM</span> -<span class="title">DVPAES_ASM</span> -<span class="title">DBSAES_ASM</span> -<span class="title">DWHIRLPOOL_ASM</span> -<span class="title">DGHASH_ASM</span> -<span class="title">DECP_NISTZ256_ASM</span></span></span><br><span class="line"><span class="function"><span class="title">OPENSSLDIR</span>: &quot;/<span class="title">usr</span>/<span class="title">local</span>/<span class="title">openssl</span>/<span class="title">ssl</span>&quot;</span></span><br></pre></td></tr></table></figure>
-
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/usr/local/nginx/sbin/nginx -V</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">nginx version: nginx/<span class="number">1</span>.<span class="number">13</span>.<span class="number">7</span></span><br><span class="line">built by gcc <span class="number">4</span>.<span class="number">1</span>.<span class="number">2</span> <span class="number">20080704</span> (Red Hat <span class="number">4</span>.<span class="number">1</span>.<span class="number">2</span>-<span class="number">55</span>)</span><br><span class="line">built with OpenSSL <span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u  <span class="number">20</span> Dec <span class="number">2019</span></span><br><span class="line">TLS SNI support enabled</span><br><span class="line">configure arguments: --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-openssl=/usr/local/openssl-<span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">&lt;Connector port=&quot;<span class="number">443</span>&quot; protocol=&quot;HTTP/<span class="number">1</span>.<span class="number">1</span>&quot; </span><br><span class="line">                SSLEnabled=&quot;true&quot;</span><br><span class="line">                maxThreads=&quot;<span class="number">150</span>&quot; scheme=&quot;https&quot; secure=&quot;true&quot;</span><br><span class="line">                clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; </span><br><span class="line">                keystoreFile=&quot;conf/dlibs.<span class="built_in">net</span>.jks&quot;</span><br><span class="line">                keystorePass=&quot;LN5I3zpu&quot;</span><br><span class="line">                SSLProtocol=&quot;TLSv1+TLSv1.<span class="number">1</span>+TLSv1.<span class="number">2</span>&quot;</span><br><span class="line">                ciphers=&quot;TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256&quot;</span><br><span class="line">                /&gt;</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-        <tag>Tomcat</tag>
-        <tag>Nginx</tag>
+        <tag>网络安全</tag>
       </tags>
   </entry>
   <entry>
@@ -844,6 +745,225 @@ list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存�
       </tags>
   </entry>
   <entry>
+    <title>redis-cli各种命令使用示例</title>
+    <url>/2022/10/15/redis-cli%E5%90%84%E7%A7%8D%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B/</url>
+    <content><![CDATA[<h1 id="redis-cli各种命令使用示例"><a href="#redis-cli各种命令使用示例" class="headerlink" title="redis-cli各种命令使用示例"></a>redis-cli各种命令使用示例</h1><p>Redis版本：<code>4.0</code><br>Github：<a href="https://github.com/redis/redis/tree/4.0">https://github.com/redis/redis/tree/4.0</a><br>Redis官方文档（纯英文）：<a href="https://redis.io/docs&gt;">https://redis.io/docs&gt;</a><br>Redis官方指令查询（纯英文）：<a href="https://redis.io/commands">https://redis.io/commands</a></p>
+<h4 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h4><h5 id="get"><a href="#get" class="headerlink" title="get"></a>get</h5><blockquote>
+<p>get <key></p>
+<p>获取值。<br>当key不存在时返回<strong>nil</strong>。</p>
+</blockquote>
+<h5 id="set"><a href="#set" class="headerlink" title="set"></a>set</h5><blockquote>
+<p> set <key> <value></p>
+<p>设置值。</p>
+</blockquote>
+<h5 id="getset"><a href="#getset" class="headerlink" title="getset"></a>getset</h5><blockquote>
+<p>getset <key> <value></p>
+<p>设置key的新值，返回key的旧值。<br>当key不存在时，返回<strong>nil</strong>。</p>
+</blockquote>
+<h5 id="setex"><a href="#setex" class="headerlink" title="setex"></a>setex</h5><blockquote>
+<p>setex <key> <seconds> <value></p>
+<p>设置值，并且修改过期时间为 seconds 秒。</p>
+</blockquote>
+<h5 id="setnx"><a href="#setnx" class="headerlink" title="setnx"></a>setnx</h5><blockquote>
+<p>setnx <key> <value></p>
+<p>当key不存在时，为key设置值。</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">127.0.0.1:6379&gt; exists name             # key不存在</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; setnx name khazan       # 设置值成功</span><br><span class="line">(integer) 1</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line">&quot;khazan&quot;</span><br><span class="line">127.0.0.1:6379&gt; setnx name lbw          # 覆盖值失败</span><br><span class="line">(integer) 0</span><br><span class="line">127.0.0.1:6379&gt; get name</span><br><span class="line">&quot;khazan&quot;</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="集合"><a href="#集合" class="headerlink" title="集合"></a>集合</h4><h4 id="管理命令"><a href="#管理命令" class="headerlink" title="管理命令"></a>管理命令</h4><h5 id="module"><a href="#module" class="headerlink" title="module"></a>module</h5><blockquote>
+<p>模块管理命令</p>
+</blockquote>
+<ol>
+<li><p>load</p>
+<blockquote>
+<p>module load <path> [args…]</p>
+<p>加载模块</p>
+</blockquote>
+</li>
+<li><p>unload</p>
+<blockquote>
+<p>module unload</p>
+<p>卸载模块</p>
+</blockquote>
+</li>
+<li><p>list</p>
+<blockquote>
+<p>module list</p>
+<p>查看已加载的模块</p>
+</blockquote>
+</li>
+</ol>
+<h5 id="psetex"><a href="#psetex" class="headerlink" title="psetex"></a>psetex</h5><h5 id="append"><a href="#append" class="headerlink" title="append"></a>append</h5><h5 id="strlen"><a href="#strlen" class="headerlink" title="strlen"></a>strlen</h5><h5 id="del"><a href="#del" class="headerlink" title="del"></a>del</h5><h5 id="unlink"><a href="#unlink" class="headerlink" title="unlink"></a>unlink</h5><h5 id="exists"><a href="#exists" class="headerlink" title="exists"></a>exists</h5><h5 id="setbit"><a href="#setbit" class="headerlink" title="setbit"></a>setbit</h5><h5 id="getbit"><a href="#getbit" class="headerlink" title="getbit"></a>getbit</h5><h5 id="bitfield"><a href="#bitfield" class="headerlink" title="bitfield"></a>bitfield</h5><h5 id="setrange"><a href="#setrange" class="headerlink" title="setrange"></a>setrange</h5><h5 id="getrange"><a href="#getrange" class="headerlink" title="getrange"></a>getrange</h5><h5 id="substr"><a href="#substr" class="headerlink" title="substr"></a>substr</h5><h5 id="incr"><a href="#incr" class="headerlink" title="incr"></a>incr</h5><h5 id="decr"><a href="#decr" class="headerlink" title="decr"></a>decr</h5><h5 id="mget"><a href="#mget" class="headerlink" title="mget"></a>mget</h5><h5 id="rpush"><a href="#rpush" class="headerlink" title="rpush"></a>rpush</h5><h5 id="lpush"><a href="#lpush" class="headerlink" title="lpush"></a>lpush</h5><h5 id="rpushx"><a href="#rpushx" class="headerlink" title="rpushx"></a>rpushx</h5><h5 id="lpushx"><a href="#lpushx" class="headerlink" title="lpushx"></a>lpushx</h5><h5 id="linsert"><a href="#linsert" class="headerlink" title="linsert"></a>linsert</h5><h5 id="rpop"><a href="#rpop" class="headerlink" title="rpop"></a>rpop</h5><h5 id="lpop"><a href="#lpop" class="headerlink" title="lpop"></a>lpop</h5><h5 id="brpop"><a href="#brpop" class="headerlink" title="brpop"></a>brpop</h5><h5 id="brpoplpush"><a href="#brpoplpush" class="headerlink" title="brpoplpush"></a>brpoplpush</h5><h5 id="blpop"><a href="#blpop" class="headerlink" title="blpop"></a>blpop</h5><h5 id="llen"><a href="#llen" class="headerlink" title="llen"></a>llen</h5><h5 id="lindex"><a href="#lindex" class="headerlink" title="lindex"></a>lindex</h5><h5 id="lset"><a href="#lset" class="headerlink" title="lset"></a>lset</h5><h5 id="lrange"><a href="#lrange" class="headerlink" title="lrange"></a>lrange</h5><h5 id="ltrim"><a href="#ltrim" class="headerlink" title="ltrim"></a>ltrim</h5><h5 id="lrem"><a href="#lrem" class="headerlink" title="lrem"></a>lrem</h5><h5 id="rpoplpush"><a href="#rpoplpush" class="headerlink" title="rpoplpush"></a>rpoplpush</h5><h5 id="sadd"><a href="#sadd" class="headerlink" title="sadd"></a>sadd</h5><h5 id="srem"><a href="#srem" class="headerlink" title="srem"></a>srem</h5><h5 id="smove"><a href="#smove" class="headerlink" title="smove"></a>smove</h5><h5 id="sismember"><a href="#sismember" class="headerlink" title="sismember"></a>sismember</h5><h5 id="scard"><a href="#scard" class="headerlink" title="scard"></a>scard</h5><h5 id="spop"><a href="#spop" class="headerlink" title="spop"></a>spop</h5><h5 id="srandmember"><a href="#srandmember" class="headerlink" title="srandmember"></a>srandmember</h5><h5 id="sinter"><a href="#sinter" class="headerlink" title="sinter"></a>sinter</h5><h5 id="sinterstore"><a href="#sinterstore" class="headerlink" title="sinterstore"></a>sinterstore</h5><h5 id="sunion"><a href="#sunion" class="headerlink" title="sunion"></a>sunion</h5><h5 id="sunionstore"><a href="#sunionstore" class="headerlink" title="sunionstore"></a>sunionstore</h5><h5 id="sdiff"><a href="#sdiff" class="headerlink" title="sdiff"></a>sdiff</h5><h5 id="sdiffstore"><a href="#sdiffstore" class="headerlink" title="sdiffstore"></a>sdiffstore</h5><h5 id="smembers"><a href="#smembers" class="headerlink" title="smembers"></a>smembers</h5><h5 id="sscan"><a href="#sscan" class="headerlink" title="sscan"></a>sscan</h5><h5 id="zadd"><a href="#zadd" class="headerlink" title="zadd"></a>zadd</h5><h5 id="zincrby"><a href="#zincrby" class="headerlink" title="zincrby"></a>zincrby</h5><h5 id="zrem"><a href="#zrem" class="headerlink" title="zrem"></a>zrem</h5><h5 id="zremrangebyscore"><a href="#zremrangebyscore" class="headerlink" title="zremrangebyscore"></a>zremrangebyscore</h5><h5 id="zremrangebyrank"><a href="#zremrangebyrank" class="headerlink" title="zremrangebyrank"></a>zremrangebyrank</h5><h5 id="zremrangebylex"><a href="#zremrangebylex" class="headerlink" title="zremrangebylex"></a>zremrangebylex</h5><h5 id="zunionstore"><a href="#zunionstore" class="headerlink" title="zunionstore"></a>zunionstore</h5><h5 id="zinterstore"><a href="#zinterstore" class="headerlink" title="zinterstore"></a>zinterstore</h5><h5 id="zrange"><a href="#zrange" class="headerlink" title="zrange"></a>zrange</h5><h5 id="zrangebyscore"><a href="#zrangebyscore" class="headerlink" title="zrangebyscore"></a>zrangebyscore</h5><h5 id="zrevrangebyscore"><a href="#zrevrangebyscore" class="headerlink" title="zrevrangebyscore"></a>zrevrangebyscore</h5><h5 id="zrangebylex"><a href="#zrangebylex" class="headerlink" title="zrangebylex"></a>zrangebylex</h5><h5 id="zrevrangebylex"><a href="#zrevrangebylex" class="headerlink" title="zrevrangebylex"></a>zrevrangebylex</h5><h5 id="zcount"><a href="#zcount" class="headerlink" title="zcount"></a>zcount</h5><h5 id="zlexcount"><a href="#zlexcount" class="headerlink" title="zlexcount"></a>zlexcount</h5><h5 id="zrevrange"><a href="#zrevrange" class="headerlink" title="zrevrange"></a>zrevrange</h5><h5 id="zcard"><a href="#zcard" class="headerlink" title="zcard"></a>zcard</h5><h5 id="zscore"><a href="#zscore" class="headerlink" title="zscore"></a>zscore</h5><h5 id="zrank"><a href="#zrank" class="headerlink" title="zrank"></a>zrank</h5><h5 id="zrevrank"><a href="#zrevrank" class="headerlink" title="zrevrank"></a>zrevrank</h5><h5 id="zscan"><a href="#zscan" class="headerlink" title="zscan"></a>zscan</h5><h5 id="hset"><a href="#hset" class="headerlink" title="hset"></a>hset</h5><h5 id="hsetnx"><a href="#hsetnx" class="headerlink" title="hsetnx"></a>hsetnx</h5><h5 id="hget"><a href="#hget" class="headerlink" title="hget"></a>hget</h5><h5 id="hmset"><a href="#hmset" class="headerlink" title="hmset"></a>hmset</h5><h5 id="hmget"><a href="#hmget" class="headerlink" title="hmget"></a>hmget</h5><h5 id="hincrby"><a href="#hincrby" class="headerlink" title="hincrby"></a>hincrby</h5><h5 id="hincrbyfloat"><a href="#hincrbyfloat" class="headerlink" title="hincrbyfloat"></a>hincrbyfloat</h5><h5 id="hdel"><a href="#hdel" class="headerlink" title="hdel"></a>hdel</h5><h5 id="hlen"><a href="#hlen" class="headerlink" title="hlen"></a>hlen</h5><h5 id="hstrlen"><a href="#hstrlen" class="headerlink" title="hstrlen"></a>hstrlen</h5><h5 id="hkeys"><a href="#hkeys" class="headerlink" title="hkeys"></a>hkeys</h5><h5 id="hvals"><a href="#hvals" class="headerlink" title="hvals"></a>hvals</h5><h5 id="hgetall"><a href="#hgetall" class="headerlink" title="hgetall"></a>hgetall</h5><h5 id="hexists"><a href="#hexists" class="headerlink" title="hexists"></a>hexists</h5><h5 id="hscan"><a href="#hscan" class="headerlink" title="hscan"></a>hscan</h5><h5 id="incrby"><a href="#incrby" class="headerlink" title="incrby"></a>incrby</h5><h5 id="decrby"><a href="#decrby" class="headerlink" title="decrby"></a>decrby</h5><h5 id="incrbyfloat"><a href="#incrbyfloat" class="headerlink" title="incrbyfloat"></a>incrbyfloat</h5><h5 id="mset"><a href="#mset" class="headerlink" title="mset"></a>mset</h5><h5 id="msetnx"><a href="#msetnx" class="headerlink" title="msetnx"></a>msetnx</h5><h5 id="randomkey"><a href="#randomkey" class="headerlink" title="randomkey"></a>randomkey</h5><h5 id="select"><a href="#select" class="headerlink" title="select"></a>select</h5><h5 id="swapdb"><a href="#swapdb" class="headerlink" title="swapdb"></a>swapdb</h5><h5 id="move"><a href="#move" class="headerlink" title="move"></a>move</h5><h5 id="rename"><a href="#rename" class="headerlink" title="rename"></a>rename</h5><h5 id="renamenx"><a href="#renamenx" class="headerlink" title="renamenx"></a>renamenx</h5><h5 id="expire"><a href="#expire" class="headerlink" title="expire"></a>expire</h5><h5 id="expireat"><a href="#expireat" class="headerlink" title="expireat"></a>expireat</h5><h5 id="pexpire"><a href="#pexpire" class="headerlink" title="pexpire"></a>pexpire</h5><h5 id="pexpireat"><a href="#pexpireat" class="headerlink" title="pexpireat"></a>pexpireat</h5><h5 id="keys"><a href="#keys" class="headerlink" title="keys"></a>keys</h5><h5 id="scan"><a href="#scan" class="headerlink" title="scan"></a>scan</h5><h5 id="dbsize"><a href="#dbsize" class="headerlink" title="dbsize"></a>dbsize</h5><h5 id="auth"><a href="#auth" class="headerlink" title="auth"></a>auth</h5><h5 id="ping"><a href="#ping" class="headerlink" title="ping"></a>ping</h5><h5 id="echo"><a href="#echo" class="headerlink" title="echo"></a>echo</h5><h5 id="save"><a href="#save" class="headerlink" title="save"></a>save</h5><h5 id="bgsave"><a href="#bgsave" class="headerlink" title="bgsave"></a>bgsave</h5><h5 id="bgrewriteaof"><a href="#bgrewriteaof" class="headerlink" title="bgrewriteaof"></a>bgrewriteaof</h5><h5 id="shutdown"><a href="#shutdown" class="headerlink" title="shutdown"></a>shutdown</h5><h5 id="lastsave"><a href="#lastsave" class="headerlink" title="lastsave"></a>lastsave</h5><h5 id="type"><a href="#type" class="headerlink" title="type"></a>type</h5><h5 id="multi"><a href="#multi" class="headerlink" title="multi"></a>multi</h5><h5 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h5><h5 id="discard"><a href="#discard" class="headerlink" title="discard"></a>discard</h5><h5 id="sync"><a href="#sync" class="headerlink" title="sync"></a>sync</h5><h5 id="psync"><a href="#psync" class="headerlink" title="psync"></a>psync</h5><h5 id="replconf"><a href="#replconf" class="headerlink" title="replconf"></a>replconf</h5><h5 id="flushdb"><a href="#flushdb" class="headerlink" title="flushdb"></a>flushdb</h5><h5 id="flushall"><a href="#flushall" class="headerlink" title="flushall"></a>flushall</h5><h5 id="sort"><a href="#sort" class="headerlink" title="sort"></a>sort</h5><h5 id="info"><a href="#info" class="headerlink" title="info"></a>info</h5><h5 id="monitor"><a href="#monitor" class="headerlink" title="monitor"></a>monitor</h5><h5 id="ttl"><a href="#ttl" class="headerlink" title="ttl"></a>ttl</h5><h5 id="touch"><a href="#touch" class="headerlink" title="touch"></a>touch</h5><h5 id="pttl"><a href="#pttl" class="headerlink" title="pttl"></a>pttl</h5><h5 id="persist"><a href="#persist" class="headerlink" title="persist"></a>persist</h5><h5 id="slaveof"><a href="#slaveof" class="headerlink" title="slaveof"></a>slaveof</h5><h5 id="role"><a href="#role" class="headerlink" title="role"></a>role</h5><h5 id="debug"><a href="#debug" class="headerlink" title="debug"></a>debug</h5><h5 id="config"><a href="#config" class="headerlink" title="config"></a>config</h5><h5 id="subscribe"><a href="#subscribe" class="headerlink" title="subscribe"></a>subscribe</h5><h5 id="unsubscribe"><a href="#unsubscribe" class="headerlink" title="unsubscribe"></a>unsubscribe</h5><h5 id="psubscribe"><a href="#psubscribe" class="headerlink" title="psubscribe"></a>psubscribe</h5><h5 id="punsubscribe"><a href="#punsubscribe" class="headerlink" title="punsubscribe"></a>punsubscribe</h5><h5 id="publish"><a href="#publish" class="headerlink" title="publish"></a>publish</h5><h5 id="pubsub"><a href="#pubsub" class="headerlink" title="pubsub"></a>pubsub</h5><h5 id="watch"><a href="#watch" class="headerlink" title="watch"></a>watch</h5><h5 id="unwatch"><a href="#unwatch" class="headerlink" title="unwatch"></a>unwatch</h5><h5 id="cluster"><a href="#cluster" class="headerlink" title="cluster"></a>cluster</h5><h5 id="restore"><a href="#restore" class="headerlink" title="restore"></a>restore</h5><h5 id="restore-1"><a href="#restore-1" class="headerlink" title="restore"></a>restore</h5><h5 id="migrate"><a href="#migrate" class="headerlink" title="migrate"></a>migrate</h5><h5 id="asking"><a href="#asking" class="headerlink" title="asking"></a>asking</h5><h5 id="readonly"><a href="#readonly" class="headerlink" title="readonly"></a>readonly</h5><h5 id="readwrite"><a href="#readwrite" class="headerlink" title="readwrite"></a>readwrite</h5><h5 id="dump"><a href="#dump" class="headerlink" title="dump"></a>dump</h5><h5 id="object"><a href="#object" class="headerlink" title="object"></a>object</h5><blockquote>
+<p>object &lt;refcount|encoding|idletime|freq&gt; <key></p>
+<p>object命令可以检查对象的内部结构</p>
+</blockquote>
+<ol>
+<li>refcount – 返回key的值被引用的次数。</li>
+<li>encoding – 返回key的值编码类型。</li>
+<li>idletime – 返回key的值的空闲时间，即最后一次访问以来经过的秒数。</li>
+<li>freq – 返回访问频率。</li>
+</ol>
+<h5 id="memory"><a href="#memory" class="headerlink" title="memory"></a>memory</h5><h5 id="client"><a href="#client" class="headerlink" title="client"></a>client</h5><h5 id="eval"><a href="#eval" class="headerlink" title="eval"></a>eval</h5><h5 id="evalsha"><a href="#evalsha" class="headerlink" title="evalsha"></a>evalsha</h5><h5 id="slowlog"><a href="#slowlog" class="headerlink" title="slowlog"></a>slowlog</h5><h5 id="script"><a href="#script" class="headerlink" title="script"></a>script</h5><h5 id="time"><a href="#time" class="headerlink" title="time"></a>time</h5><h5 id="bitop"><a href="#bitop" class="headerlink" title="bitop"></a>bitop</h5><h5 id="bitcount"><a href="#bitcount" class="headerlink" title="bitcount"></a>bitcount</h5><h5 id="bitpos"><a href="#bitpos" class="headerlink" title="bitpos"></a>bitpos</h5><h5 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h5><h5 id="command"><a href="#command" class="headerlink" title="command"></a>command</h5><h5 id="geoadd"><a href="#geoadd" class="headerlink" title="geoadd"></a>geoadd</h5><h5 id="georadius"><a href="#georadius" class="headerlink" title="georadius"></a>georadius</h5><h5 id="georadius-ro"><a href="#georadius-ro" class="headerlink" title="georadius_ro"></a>georadius_ro</h5><h5 id="georadiusbymember"><a href="#georadiusbymember" class="headerlink" title="georadiusbymember"></a>georadiusbymember</h5><h5 id="georadiusbymember-ro"><a href="#georadiusbymember-ro" class="headerlink" title="georadiusbymember_ro"></a>georadiusbymember_ro</h5><h5 id="geohash"><a href="#geohash" class="headerlink" title="geohash"></a>geohash</h5><h5 id="geopos"><a href="#geopos" class="headerlink" title="geopos"></a>geopos</h5><h5 id="geodist"><a href="#geodist" class="headerlink" title="geodist"></a>geodist</h5><h5 id="pfselftest"><a href="#pfselftest" class="headerlink" title="pfselftest"></a>pfselftest</h5><h5 id="pfadd"><a href="#pfadd" class="headerlink" title="pfadd"></a>pfadd</h5><h5 id="pfcount"><a href="#pfcount" class="headerlink" title="pfcount"></a>pfcount</h5><h5 id="pfmerge"><a href="#pfmerge" class="headerlink" title="pfmerge"></a>pfmerge</h5><h5 id="pfdebug"><a href="#pfdebug" class="headerlink" title="pfdebug"></a>pfdebug</h5><h5 id="post"><a href="#post" class="headerlink" title="post"></a>post</h5><h5 id="host"><a href="#host" class="headerlink" title="host"></a>host</h5><h5 id="latency"><a href="#latency" class="headerlink" title="latency"></a>latency</h5>]]></content>
+      <categories>
+        <category>Redis</category>
+      </categories>
+      <tags>
+        <tag>Redis</tag>
+        <tag>NoSQL</tag>
+        <tag>redis-cli</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>基于JVMTI实现Class文件加密</title>
+    <url>/2021/07/06/%E5%9F%BA%E4%BA%8EJVMTI%E5%AE%9E%E7%8E%B0Class%E6%96%87%E4%BB%B6%E5%8A%A0%E5%AF%86/</url>
+    <content><![CDATA[<h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p><code>本文主要讲解在JDK1.8中如何完成对Class文件的加解密。如若存在版本改动则本文不适用。</code></p>
+<h3 id="开发工具"><a href="#开发工具" class="headerlink" title="开发工具"></a>开发工具</h3><ul>
+<li>Visual Studio 2022</li>
+</ul>
+<h4 id="Class文件结构分析"><a href="#Class文件结构分析" class="headerlink" title="Class文件结构分析"></a>Class文件结构分析</h4><p>Class文件是一组以<code>8 Byte</code>为基本单位的二进制流。 </p>
+<ul>
+<li><p>具体文件结构如下</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>类型</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>magic</td>
+<td>u4</td>
+<td>魔数</td>
+</tr>
+<tr>
+<td>minor_version</td>
+<td>u2</td>
+<td>副版本号</td>
+</tr>
+<tr>
+<td>major_version</td>
+<td>u2</td>
+<td>主版本号</td>
+</tr>
+<tr>
+<td>constant_pool_count</td>
+<td>u2</td>
+<td>常量池数</td>
+</tr>
+<tr>
+<td>constant_pool[constant_pool_count - 1]</td>
+<td>cp_info</td>
+<td>常量池</td>
+</tr>
+<tr>
+<td>access_flags</td>
+<td>u2</td>
+<td>访问标记</td>
+</tr>
+<tr>
+<td>this_class</td>
+<td>u2</td>
+<td>类索引</td>
+</tr>
+<tr>
+<td>super_class</td>
+<td>u2</td>
+<td>超类索引</td>
+</tr>
+<tr>
+<td>interfaces_count</td>
+<td>u2</td>
+<td>接口数</td>
+</tr>
+<tr>
+<td>interfaces[interfaces_count]</td>
+<td>u2</td>
+<td>接口表</td>
+</tr>
+<tr>
+<td>fields_count</td>
+<td>u2</td>
+<td>字段数</td>
+</tr>
+<tr>
+<td>fields[fields_count]</td>
+<td>field_info</td>
+<td>字段表</td>
+</tr>
+<tr>
+<td>methods_count</td>
+<td>u2</td>
+<td>方法数</td>
+</tr>
+<tr>
+<td>methods[methods_count]</td>
+<td>method_info</td>
+<td>方法表</td>
+</tr>
+<tr>
+<td>attributes_count</td>
+<td>u2</td>
+<td>属性数</td>
+</tr>
+<tr>
+<td>attributes[attributes_count]</td>
+<td>attribute_info</td>
+<td>属性表</td>
+</tr>
+</tbody></table>
+</li>
+<li><p>属性解析</p>
+<ol>
+<li><p>魔数 magic</p>
+<p>魔法字符串，固定值为<code>0xCA 0xFE 0xBA 0xBE</code>。</p>
+<p>主要作用是用来标识Class文件，JVM会根据魔数判断此文件是否可以加载。</p>
+<p>类似于PNG文件的署名域由固定的8 Byte 0x89 0x50 0x4E 0x47 0x0D 0x0A 0x1A 0x0A来表示，用于识别是不是PNG文件。</p>
+</li>
+<li><p>常量池</p>
+</li>
+<li><p>访问标记</p>
+</li>
+<li><p>类索引、父类索引</p>
+</li>
+<li><p>接口表</p>
+</li>
+<li><p>字段表</p>
+</li>
+<li><p>方法表</p>
+</li>
+<li><p>属性表</p>
+</li>
+</ol>
+</li>
+</ul>
+<h4 id="实现加密方式"><a href="#实现加密方式" class="headerlink" title="实现加密方式"></a>实现加密方式</h4><h4 id="实现解密功能"><a href="#实现解密功能" class="headerlink" title="实现解密功能"></a>实现解密功能</h4><h4 id="使用’-agentpath’"><a href="#使用’-agentpath’" class="headerlink" title="使用’-agentpath’"></a>使用’-agentpath’</h4><h3 id="结束"><a href="#结束" class="headerlink" title="结束"></a>结束</h3><p>参考文章：</p>
+<p>Class文件结构(7大内容格式详细解析)：<a href="https://mikechen.cc/15938.html">https://mikechen.cc/15938.html</a></p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>JVMTI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>微信公众号开发</title>
+    <url>/2021/10/12/%E5%BE%AE%E4%BF%A1%E5%85%AC%E4%BC%97%E5%8F%B7%E5%BC%80%E5%8F%91/</url>
+    <content><![CDATA[<p><a href="https://mp.weixin.qq.com/debug/cgi-bin/sandbox?t=sandbox/login">微信公众平台接口测试</a></p>
+]]></content>
+      <categories>
+        <category>微信公众号</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>微信公众号</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>正则表达式学习</title>
     <url>/2022/10/18/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E5%AD%A6%E4%B9%A0/</url>
     <content><![CDATA[<h1 id="正则表达式学习"><a href="#正则表达式学习" class="headerlink" title="正则表达式学习"></a>正则表达式学习</h1><h2 id="表达式"><a href="#表达式" class="headerlink" title="表达式"></a>表达式</h2><h3 id="pattern"><a href="#pattern" class="headerlink" title="(?:pattern)"></a>(?:pattern)</h3><p>()表示捕获分组，()会把每个分组里的匹配的值保存起来，从左向右，以分组的左括号为标志，第一个出现的分组的组号为1，第二个为2，以此类推</p>
@@ -866,6 +986,34 @@ list最多可存储<code>2^32 - 1</code>元素 (4294967295, 每个列表可存�
       </categories>
       <tags>
         <tag>正则表达式</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>服务器Https配置</title>
+    <url>/2021/02/04/%E6%9C%8D%E5%8A%A1%E5%99%A8Https%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p><a href="https://help.aliyun.com/document_detail/98728.html?spm=5176.14113079.0.0.30f056a7iUZmzT">配置方法</a></p>
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">vim /usr/local/nginx/conf/nginx.conf</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">       listen  80;</span><br><span class="line">       server_name 127.0.0.1;</span><br><span class="line"></span><br><span class="line">       # listen 443 ssl;</span><br><span class="line">       #配置HTTPS的默认访问端口为443</span><br><span class="line">       #如果未在此处配置HTTPS的默认访问端口，可能会造成Nginx无法启动</span><br><span class="line">       #如果您使用Nginx 1.15.0及以上版本，请使用listen 443 ssl代替listen 443和ssl on。</span><br><span class="line">       # server_name dlibs.net;</span><br><span class="line">       # ssl_certificate cert/4525413_dlibs.net.pem;</span><br><span class="line">       # ssl_certificate_key cert/4525413_dlibs.net.key;</span><br><span class="line">       # ssl_session_timeout 5m;</span><br><span class="line">       # ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4; #表示使用的加密套件的类型</span><br><span class="line">       # ssl_protocols TLSv1 TLSv1.1 TLSv1.2; #表示使用的TLS协议的类型</span><br><span class="line">       # ssl_prefer_server_ciphers on;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">openssl version -a</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">OpenSSL <span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u  <span class="number">20</span> Dec <span class="number">2019</span></span><br><span class="line">built on: reproducible build, <span class="built_in">date</span> unspecified</span><br><span class="line"><span class="function">platform: <span class="title">linux</span>-<span class="title">x86_64</span></span></span><br><span class="line"><span class="function"><span class="title">options</span>:  <span class="title">bn</span>(64,64) <span class="title">rc4</span>(16<span class="title">x</span>,<span class="title">int</span>) <span class="title">des</span>(<span class="title">idx</span>,<span class="title">cisc</span>,16,<span class="title">int</span>) <span class="title">idea</span>(<span class="title">int</span>) <span class="title">blowfish</span>(<span class="title">idx</span>) </span></span><br><span class="line"><span class="function"><span class="title">compiler</span>: <span class="title">gcc</span> -<span class="title">I</span>. -<span class="title">I</span>.. -<span class="title">I</span>../<span class="title">include</span>  -<span class="title">DOPENSSL_THREADS</span> -<span class="title">D_REENTRANT</span> -<span class="title">DDSO_DLFCN</span> -<span class="title">DHAVE_DLFCN_H</span> -<span class="title">Wa</span>,--<span class="title">noexecstack</span> -<span class="title">m64</span> -<span class="title">DL_ENDIAN</span> -<span class="title">O3</span> -<span class="title">Wall</span> -<span class="title">DOPENSSL_IA32_SSE2</span> -<span class="title">DOPENSSL_BN_ASM_MONT</span> -<span class="title">DOPENSSL_BN_ASM_MONT5</span> -<span class="title">DOPENSSL_BN_ASM_GF2m</span> -<span class="title">DRC4_ASM</span> -<span class="title">DSHA1_ASM</span> -<span class="title">DSHA256_ASM</span> -<span class="title">DSHA512_ASM</span> -<span class="title">DMD5_ASM</span> -<span class="title">DAES_ASM</span> -<span class="title">DVPAES_ASM</span> -<span class="title">DBSAES_ASM</span> -<span class="title">DWHIRLPOOL_ASM</span> -<span class="title">DGHASH_ASM</span> -<span class="title">DECP_NISTZ256_ASM</span></span></span><br><span class="line"><span class="function"><span class="title">OPENSSLDIR</span>: &quot;/<span class="title">usr</span>/<span class="title">local</span>/<span class="title">openssl</span>/<span class="title">ssl</span>&quot;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">/usr/local/nginx/sbin/nginx -V</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">nginx version: nginx/<span class="number">1</span>.<span class="number">13</span>.<span class="number">7</span></span><br><span class="line">built by gcc <span class="number">4</span>.<span class="number">1</span>.<span class="number">2</span> <span class="number">20080704</span> (Red Hat <span class="number">4</span>.<span class="number">1</span>.<span class="number">2</span>-<span class="number">55</span>)</span><br><span class="line">built with OpenSSL <span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u  <span class="number">20</span> Dec <span class="number">2019</span></span><br><span class="line">TLS SNI support enabled</span><br><span class="line">configure arguments: --prefix=/usr/local/nginx --with-http_stub_status_module --with-http_ssl_module --with-openssl=/usr/local/openssl-<span class="number">1</span>.<span class="number">0</span>.<span class="number">2</span>u</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight cmd"><table><tr><td class="code"><pre><span class="line">&lt;Connector port=&quot;<span class="number">443</span>&quot; protocol=&quot;HTTP/<span class="number">1</span>.<span class="number">1</span>&quot; </span><br><span class="line">                SSLEnabled=&quot;true&quot;</span><br><span class="line">                maxThreads=&quot;<span class="number">150</span>&quot; scheme=&quot;https&quot; secure=&quot;true&quot;</span><br><span class="line">                clientAuth=&quot;false&quot; sslProtocol=&quot;TLS&quot; </span><br><span class="line">                keystoreFile=&quot;conf/dlibs.<span class="built_in">net</span>.jks&quot;</span><br><span class="line">                keystorePass=&quot;LN5I3zpu&quot;</span><br><span class="line">                SSLProtocol=&quot;TLSv1+TLSv1.<span class="number">1</span>+TLSv1.<span class="number">2</span>&quot;</span><br><span class="line">                ciphers=&quot;TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256&quot;</span><br><span class="line">                /&gt;</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+        <tag>Tomcat</tag>
+        <tag>Nginx</tag>
       </tags>
   </entry>
 </search>
