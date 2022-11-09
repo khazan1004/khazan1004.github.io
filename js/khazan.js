@@ -10,12 +10,12 @@ var khazan = {
       activateDarkMode()
       saveToLocal.set('theme', 'dark', 2)
       GLOBAL_CONFIG.Snackbar !== undefined && btf.snackbarShow(GLOBAL_CONFIG.Snackbar.day_to_night)
-      $("#darkmode-button i").removeClass("fa-sun").addClass("fa-moon");
+      $("#darkmode-button i").removeClass("fa-moon").addClass("fa-sun");
     } else {
       activateLightMode()
       saveToLocal.set('theme', 'light', 2)
       GLOBAL_CONFIG.Snackbar !== undefined && btf.snackbarShow(GLOBAL_CONFIG.Snackbar.night_to_day)
-      $("#darkmode-button i").removeClass("fa-moon").addClass("fa-sun");
+      $("#darkmode-button i").removeClass("fa-sun").addClass("fa-moon");
     }
     // handle some cases
     typeof utterancesTheme === 'function' && utterancesTheme()
